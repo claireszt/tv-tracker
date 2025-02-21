@@ -1,36 +1,60 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 📺 TV Tracker
 
-## Getting Started
+**TV Tracker** is a web application built with **Next.js** and **Prisma** that helps users track their watched TV episodes using data from **TheTVDB API**.
 
-First, run the development server:
+## 🚀 Features
+
+## 🏗 Tech Stack
+
+### ⚙️ Backend
+
+- **Next.js** → API routes for server-side logic
+- **Prisma ORM** → Database interactions
+- **PostgreSQL** → Database
+- **Docker** → Containerized development and production environment
+
+### 🎨 Frontend
+
+- **React** → User Interface with Next.js
+- **Tailwind CSS** → Styling framework
+
+### 🚀 DevOps & CI/CD
+
+- **GitHub Actions** → Automated testing, building, and deployment
+- **Husky & Commitlint** → Enforced commit message standards
+
+## 🛠 Setup Instructions
+
+### 1️⃣ Clone the Repository
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+git clone https://github.com/your-username/tv-tracker.git
+cd tv-tracker
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### 2️⃣ Set Up Environment Variables
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Create a `.env` file with your database URL and API key:
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```env
+DATABASE_URL="your-database-url"
+NEXT_PUBLIC_TVDB_API_KEY="your-tvdb-api-key"
+```
 
-## Learn More
+### 3️⃣ Start the Application
 
-To learn more about Next.js, take a look at the following resources:
+```bash
+docker-compose up --build
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### 4️⃣ Apply Prisma Migrations
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+```bash
+npx prisma migrate dev --name init
+```
 
-## Deploy on Vercel
+Visit `http://localhost:3000` to view the app.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## 📄 License
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+MIT License © 2025 Claire
