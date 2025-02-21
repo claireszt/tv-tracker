@@ -3,3 +3,6 @@ node_modules/
 .next/
 prisma/migrations/
 docker-compose.override.yml
+out/
+dist/
+build/
