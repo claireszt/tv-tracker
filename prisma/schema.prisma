@@ -1,0 +1,48 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  password  String
+  watchlist Watchlist[]
+}
+
+model Show {
+  id         String   @id @default(uuid())
+  tvdbId     Int      @unique
+  title      String
+  episodes   Episode[]
+  createdAt  DateTime @default(now())
+}
+
+model Episode {
+  id           String   @id @default(uuid())
+  showId       String
+  title        String
+  episodeNumber Int
+  season       Int
+  watchedBy    Watchlist[]
+
+  @@index([showId])
+
+  show Show @relation(fields: [showId], references: [id])
+}
+
+model Watchlist {
+  id        String   @id @default(uuid())
+  userId    String
+  episodeId String
+  watchedAt DateTime @default(now())
+
+  user    User    @relation(fields: [userId], references: [id])
+  episode Episode @relation(fields: [episodeId], references: [id])
+
+  @@unique([userId, episodeId])
+}
