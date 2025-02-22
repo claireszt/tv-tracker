@@ -1,4 +1,4 @@
-name-template: "🚀$ENVIRONMENT Release v$RESOLVED_VERSION - $TITLE"
+name-template: "🚀$ENVIRONMENT v$RESOLVED_VERSION - $TITLE"
 tag-template: "v$RESOLVED_VERSION"
 
 template: |
