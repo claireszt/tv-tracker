@@ -1,7 +1,7 @@
-name-template: "Release v$RESOLVED_VERSION"
+name-template: "🚀$ENVIRONMENT Release v$RESOLVED_VERSION - $TITLE"
 tag-template: "v$RESOLVED_VERSION"
+
 template: |
-  ## 🚀 Changes
   $CHANGES
 
 categories:
@@ -18,7 +18,8 @@ categories:
     labels:
       - "documentation"
 
-change-template: "- $TITLE (#$NUMBER) by @$AUTHOR"
+change-template: "- $TITLE"
+
 version-resolver:
   major:
     labels:
@@ -31,6 +32,33 @@ version-resolver:
       - "bug"
       - "maintenance"
   default: patch
+
+replacers:
+  # Tag suffixes based on the environment
+  - search: '\$RESOLVED_VERSION'
+    replace: "$RESOLVED_VERSION-staging"
+    conditions:
+      labels:
+        - "staging"
+
+  - search: '\$RESOLVED_VERSION'
+    replace: "$RESOLVED_VERSION-hotfix"
+    conditions:
+      labels:
+        - "hotfix"
+
+  # Environment name in the title
+  - search: '\$ENVIRONMENT'
+    replace: " [Staging]"
+    conditions:
+      labels:
+        - "staging"
+
+  - search: '\$ENVIRONMENT'
+    replace: " [Hotfix]"
+    conditions:
+      labels:
+        - "hotfix"
 
 exclude-labels:
   - "skip-changelog"
