@@ -1,4 +1,4 @@
-name: TV Tracker CI/CD Pipeline
+name: 🚀 TV Tracker CI/CD Pipeline
 
 on:
   push:
@@ -35,27 +35,27 @@ jobs:
       NEXT_PUBLIC_TVDB_API_KEY: ${{ secrets.TVDB_API_KEY }}
 
     steps:
-      - name: Checkout repository
+      - name: 📥 Checkout Repository
         uses: actions/checkout@v3
 
-      - name: Set up Node.js
+      - name: ⚙️ Set up Node.js
         uses: actions/setup-node@v3
         with:
           node-version: 18
 
-      - name: Install dependencies
+      - name: 📦 Install Dependencies
         run: npm install
 
-      - name: Generate Prisma Client
+      - name: 🛠️ Generate Prisma Client
         run: npx prisma generate
 
-      - name: Run Prisma Migrations
+      - name: 🗃️ Run Prisma Migrations
         run: npx prisma migrate deploy
 
-      - name: Run Tests
+      - name: 🧪 Run Tests
         run: npm run test
 
-      - name: Build Project
+      - name: 🏗️ Build Project
         run: npm run build
 
   draft-release-notes:
@@ -64,10 +64,10 @@ jobs:
     if: github.ref == 'refs/heads/staging' || github.ref == 'refs/heads/prod'
 
     steps:
-      - name: Checkout repository
+      - name: 📥 Checkout Repository
         uses: actions/checkout@v3
 
-      - name: Generate Release Notes
+      - name: 📝 Generate Release Notes
         uses: release-drafter/release-drafter@v5
         with:
           config-name: release-drafter.yml
@@ -80,8 +80,23 @@ jobs:
     if: github.ref == 'refs/heads/prod'
 
     steps:
-      - name: Checkout repository
+      - name: 📥 Checkout Repository
         uses: actions/checkout@v3
 
-      - name: Deploy
+      - name: 🚀 Deploy to Production
         run: echo "🚀 Deploying TV Tracker to production..."
+
+  notify-on-failure:
+    runs-on: ubuntu-latest
+    needs: [build-and-test, draft-release-notes, deploy]
+    if: failure()
+
+    steps:
+      - name: 🚨 Create Issue on Failure
+        uses: peter-evans/create-issue-from-file@v4
+        with:
+          title: "🚨 Pipeline Failure on ${{ github.ref_name }}"
+          content-filepath: ./pipeline-failure-template.md
+          labels: |
+            🐛 bug
+          token: ${{ secrets.GITHUB_TOKEN }}
