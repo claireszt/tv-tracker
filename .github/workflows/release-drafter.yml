@@ -1,20 +1,19 @@
-name: Automated Release Notes
+name: Release Drafter
 
 on:
   push:
     branches:
-      - staging
       - prod
+      - staging
 
 jobs:
-  create-release-notes:
+  update_release_draft:
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout repository
+      - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Generate Release Notes
+      - name: Run Release Drafter
         uses: release-drafter/release-drafter@v5
         with:
           config-name: release-drafter.yml
