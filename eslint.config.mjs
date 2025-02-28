@@ -9,6 +9,12 @@ export default [
     files: ["**/*.{js,jsx,ts,tsx}"],
     languageOptions: {
       parser,
+      globals: {
+        process: "readonly",
+        fetch: "readonly",
+        console: "readonly",
+        URL: "readonly",
+      },
     },
     plugins: {
       react,
@@ -20,7 +26,6 @@ export default [
       "prefer-const": "warn",
       "no-unused-expressions": "error",
       "no-multiple-empty-lines": ["warn", { max: 1 }],
-      "newline-before-return": "warn",
       "no-console": ["warn", { allow: ["warn", "error"] }],
 
       // 🔠 Naming Conventions
