@@ -1,5 +1,3 @@
-/* global process, console, fetch, URL */
-
 import { getTVDBToken } from "@/lib/tvdb";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -11,37 +9,26 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ message: "Query parameter 'q' is required." }, { status: 400 });
   }
 
-  const TVDB_API_KEY = process.env.TVDB_API_KEY;
   const TVDB_API_URL = process.env.TVDB_API_URL;
-  if (!TVDB_API_KEY || !TVDB_API_URL) {
-    return NextResponse.json({ message: "TVDB configuration missing." }, { status: 500 });
-  }
 
   try {
     const token = await getTVDBToken();
+    const response = await fetch(`${TVDB_API_URL}/search?query=${encodeURIComponent(query)}`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
 
-    const searchResponse = await fetch(
-      `${TVDB_API_URL}/search?query=${encodeURIComponent(query)}`,
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-      }
-    );
-
-    if (!searchResponse.ok) {
-      const searchError = await searchResponse.json();
+    if (!response.ok) {
+      const searchError = await response.json();
 
       return NextResponse.json(
         { message: "Search request failed", error: searchError },
-        { status: searchResponse.status }
+        { status: response.status }
       );
     }
 
-    const data = await searchResponse.json();
+    const data = await response.json();
 
-    return NextResponse.json(data, { status: 200 });
+    return NextResponse.json(data);
   } catch (error: any) {
     console.error("Error fetching from TVDB API:", error);
 
