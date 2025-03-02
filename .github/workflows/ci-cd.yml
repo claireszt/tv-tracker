@@ -36,7 +36,7 @@ jobs:
 
     steps:
       - name: 📥 Checkout Repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4.2.2
 
       - name: ⚙️ Set up Node.js
         uses: actions/setup-node@v3
@@ -65,7 +65,7 @@ jobs:
 
     steps:
       - name: 📥 Checkout Repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4.2.2
 
       - name: 📝 Generate Release Notes
         uses: release-drafter/release-drafter@v5
