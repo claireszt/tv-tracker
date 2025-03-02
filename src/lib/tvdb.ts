@@ -1,4 +1,3 @@
-/* global process, console, fetch */
 let cachedToken: string | null = process.env.TVDB_ACCESS_TOKEN || null;
 let tokenExpiry: number | null = null;
 
