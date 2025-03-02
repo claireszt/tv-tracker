@@ -1,14 +1,18 @@
 import { getTVDBToken } from "@/lib/tvdb";
 import { NextRequest, NextResponse } from "next/server";
 
-export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
-  const { id } = params;
-  if (!id) {
-    return NextResponse.json({ message: "Show ID is required." }, { status: 400 });
-  }
-
-  const TVDB_API_URL = process.env.TVDB_API_URL;
+export async function GET(
+  req: NextRequest,
+  context: { params: Promise<{ id: string }> }
+): Promise<NextResponse> {
   try {
+    const { id } = await context.params;
+    if (!id) {
+      return NextResponse.json({ message: "Show ID is required." }, { status: 400 });
+    }
+
+    const TVDB_API_URL = process.env.TVDB_API_URL;
+
     const token = await getTVDBToken();
     const response = await fetch(`${TVDB_API_URL}/series/${id}`, {
       headers: { Authorization: `Bearer ${token}` },
