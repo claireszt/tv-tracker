@@ -6,6 +6,7 @@ export default {
     "./src/components/**/*.{js,ts,jsx,tsx,mdx}",
     "./src/app/**/*.{js,ts,jsx,tsx,mdx}",
   ],
+  darkMode: "class",
   theme: {
     extend: {
       colors: {
@@ -82,6 +83,7 @@ export default {
       spacing: {
         xs: "4px",
         s: "8px",
+        sm: "12px",
         m: "16px",
         l: "24px",
         xl: "32px",

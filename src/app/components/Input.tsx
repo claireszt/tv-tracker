@@ -19,7 +19,7 @@ const Input: React.FC<InputProps> = ({
       <input
         {...(value !== undefined ? { value } : { defaultValue })}
         placeholder={placeholder}
-        className={`w-full p-s border border-light-border rounded-1 bg-light-surface text-light-text text-body-lg mobile:text-body-lg-mobile font-body placeholder:text-gray-400 ${className}`}
+        className={`w-full p-s border border-light-border dark:border-dark-border rounded-1 bg-light-surface dark:bg-dark-surface text-light-text dark:text-dark-text text-body-lg mobile:text-body-lg-mobile font-body placeholder:text-gray-400 dark:placeholder:text-gray-600 ${className}`}
         {...props}
       />
       {value && onClear && (
