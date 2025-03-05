@@ -13,21 +13,21 @@ export default async function ShowPage({ params }: { params: Promise<{ id: strin
     const show = data.data;
 
     return (
-      <div className="max-w-xl mx-auto p-4">
-        <h1 className="text-3xl font-bold">{show.name}</h1>
+      <div className="max-w-xl mx-auto p-m text-light-text">
+        <h1 className="text-3xl font-heading">{show.name}</h1>
         {show.image && (
           <Image
             src={show.image}
             alt={show.name}
             width={600}
             height={400}
-            className="w-full mt-2"
+            className="w-full mt-2 rounded-1"
           />
         )}
-        <p className="mt-4">{show.overview || "No description available."}</p>
+        <p className="mt-4 text-body">{show.overview || "No description available."}</p>
       </div>
     );
   } catch (error) {
-    return <div>Error loading show: {String(error)}</div>;
+    return <div className="text-error">Error loading show: {String(error)}</div>;
   }
 }
