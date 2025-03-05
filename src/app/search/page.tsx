@@ -30,8 +30,8 @@ export default function SearchPage() {
   }, [debouncedQuery]);
 
   return (
-    <div className="max-w-xl mx-auto p-4">
-      <h1 className="text-2xl font-bold mb-4">Search for a TV Show</h1>
+    <div className="max-w-xl mx-auto p-m">
+      <h1 className="text-2xl font-heading text-light-text mb-4">Search for a TV Show</h1>
 
       <div className="flex gap-2">
         <input
@@ -39,32 +39,35 @@ export default function SearchPage() {
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder="Enter show name..."
-          className="w-full p-2 border rounded"
+          className="w-full p-s border border-light-border rounded-1 text-light-text bg-light-surface"
         />
         {query && (
-          <button onClick={() => setQuery("")} className="px-2 py-1 bg-gray-300 text-black rounded">
+          <button
+            onClick={() => setQuery("")}
+            className="px-s py-xs bg-error text-white rounded-1 hover:bg-red-600 transition-all"
+          >
             ✖
           </button>
         )}
       </div>
 
       {!loading && results.length === 0 && debouncedQuery && (
-        <p className="mt-4 text-gray-500">No results found for "{debouncedQuery}".</p>
+        <p className="mt-4 text-light-text opacity-70">No results found for "{debouncedQuery}".</p>
       )}
 
       {loading && (
-        <div className="mt-2 flex items-center gap-2 text-gray-500">
-          <span className="animate-spin h-4 w-4 border-2 border-gray-400 border-t-transparent rounded-full"></span>
+        <div className="mt-2 flex items-center gap-2 text-light-text opacity-70">
+          <span className="animate-spin h-4 w-4 border-2 border-light-border border-t-transparent rounded-full"></span>
           Searching...
         </div>
       )}
 
       {results.length > 0 && (
-        <ul className="mt-4 border rounded p-2">
+        <ul className="mt-4 border border-light-border rounded-1 p-m bg-light-surface">
           {results.map((show) => (
             <li
               key={show.id}
-              className="p-2 hover:bg-blue-100 cursor-pointer transition-all"
+              className="p-s hover:bg-light-border cursor-pointer transition-all rounded-1"
               onClick={() => router.push(`/show/${show.tvdb_id}`)}
             >
               {show.name}
