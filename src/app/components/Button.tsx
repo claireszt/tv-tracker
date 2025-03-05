@@ -13,7 +13,7 @@ const Button: React.FC<ButtonProps> = ({
   ...props
 }) => {
   const baseStyles =
-    "px-m py-s rounded-sm text-button mobile:text-button-mobile font-body transition-all";
+    "px-m py-sm rounded-sm text-button mobile:text-button-mobile font-body transition-all";
 
   const variants = {
     primary:
