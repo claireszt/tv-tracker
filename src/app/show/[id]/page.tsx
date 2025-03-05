@@ -14,7 +14,7 @@ export default async function ShowPage({ params }: { params: Promise<{ id: strin
 
     return (
       <div className="max-w-xl mx-auto p-m text-light-text">
-        <h1 className="text-3xl font-heading">{show.name}</h1>
+        <h1 className="text-h1 mobile:text-h1-mobile font-heading">{show.name}</h1>
         {show.image && (
           <Image
             src={show.image}
@@ -24,7 +24,9 @@ export default async function ShowPage({ params }: { params: Promise<{ id: strin
             className="w-full mt-2 rounded-1"
           />
         )}
-        <p className="mt-4 text-body">{show.overview || "No description available."}</p>
+        <p className="mt-4 text-body-lg mobile:text-body-lg-mobile font-body">
+          {show.overview || "No description available."}
+        </p>
       </div>
     );
   } catch (error) {

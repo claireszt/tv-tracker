@@ -40,16 +40,31 @@ export default {
       },
 
       fontSize: {
-        xs: "0.75rem", // 12px
-        sm: "0.875rem", // 14px
-        base: "1rem", // 16px
-        lg: "1.125rem", // 18px
-        xl: "1.25rem", // 20px
-        "2xl": "1.5rem", // 24px
-        "3xl": "1.75rem", // 28px
-        "4xl": "2rem", // 32px
-        "5xl": "2.25rem", // 36px
-        "6xl": "3rem", // 48px
+        // Desktop Headings
+        h1: ["48px", { lineHeight: "120%", fontWeight: "700" }],
+        h2: ["36px", { lineHeight: "120%", fontWeight: "600" }],
+        h3: ["28px", { lineHeight: "120%", fontWeight: "500" }],
+
+        // Mobile Headings
+        "h1-mobile": ["32px", { lineHeight: "120%", fontWeight: "700" }],
+        "h2-mobile": ["24px", { lineHeight: "120%", fontWeight: "600" }],
+        "h3-mobile": ["20px", { lineHeight: "120%", fontWeight: "500" }],
+
+        // Body Text
+        "body-lg": ["18px", { lineHeight: "150%", fontWeight: "400" }],
+        "body-sm": ["14px", { lineHeight: "150%", fontWeight: "400" }],
+
+        // Mobile Body Text
+        "body-lg-mobile": ["16px", { lineHeight: "150%", fontWeight: "400" }],
+        "body-sm-mobile": ["14px", { lineHeight: "150%", fontWeight: "400" }],
+
+        // Buttons
+        button: ["16px", { lineHeight: "100%", fontWeight: "600" }],
+        "button-mobile": ["14px", { lineHeight: "100%", fontWeight: "600" }],
+
+        // Captions
+        caption: ["12px", { lineHeight: "120%", fontWeight: "400" }],
+        "caption-mobile": ["12px", { lineHeight: "120%", fontWeight: "400" }],
       },
 
       fontFamily: {
@@ -59,8 +74,9 @@ export default {
 
       borderRadius: {
         none: "0rem",
-        "rounded-1": "0.625rem", // 10px
-        "rounded-2": "0.8125rem", // 13px
+        sm: "0.625rem", // 10px
+        md: "0.8125rem", // 13px
+        lg: "1rem", // 16px
       },
 
       spacing: {
