@@ -43,8 +43,9 @@ export default function ComponentsDisplay() {
         <h1 className="text-h1 mobile:text-h1-mobile font-heading">🔧 Components Display</h1>
 
         {/* Typography Display */}
-        <section>
-          <h2 className="text-h2 mobile:text-h2-mobile font-heading mt-l">Typography</h2>
+        <section className="bg-light-surface dark:bg-dark-surface p-m">
+          <h2 className="text-h2 mobile:text-h2-mobile font-heading">Typography</h2>
+          <hr className="border-t border-light-border dark:border-dark-border opacity-50 my-s" />
 
           <div className="space-y-s">
             <h1 className="text-h1 mobile:text-h1-mobile font-heading">H1 - Heading</h1>
@@ -63,8 +64,10 @@ export default function ComponentsDisplay() {
         </section>
 
         {/* Buttons */}
-        <section>
-          <h2 className="text-h2 mobile:text-h2-mobile font-heading mt-l">Buttons</h2>
+        <section className="bg-light-surface dark:bg-dark-surface p-m">
+          <h2 className="text-h2 mobile:text-h2-mobile font-heading">Buttons</h2>
+          <hr className="border-t border-light-border dark:border-dark-border opacity-50 my-s" />
+
           <div className="flex flex-wrap gap-m my-2">
             <Button variant="primary">Primary</Button>
             <Button variant="secondary">Secondary</Button>
@@ -88,8 +91,10 @@ export default function ComponentsDisplay() {
         </section>
 
         {/* Input Fields */}
-        <section>
-          <h2 className="text-h2 mobile:text-h2-mobile font-heading mt-l">Inputs</h2>
+        <section className="bg-light-surface dark:bg-dark-surface p-m">
+          <h2 className="text-h2 mobile:text-h2-mobile font-heading">Inputs</h2>
+          <hr className="border-t border-light-border dark:border-dark-border opacity-50 my-s" />
+
           <div className="space-y-s">
             <Input
               value={inputValue}
@@ -101,8 +106,10 @@ export default function ComponentsDisplay() {
         </section>
 
         {/* Search Results Preview */}
-        <section>
-          <h2 className="text-h2 mobile:text-h2-mobile font-heading mt-l">Search Results</h2>
+        <section className="bg-light-surface dark:bg-dark-surface p-m">
+          <h2 className="text-h2 mobile:text-h2-mobile font-heading">Search Results</h2>
+          <hr className="border-t border-light-border dark:border-dark-border opacity-50 my-s" />
+
           <SearchResults
             results={[
               { id: "1", tvdb_id: "1001", name: "Breaking Bad" },
