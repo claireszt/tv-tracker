@@ -7,7 +7,7 @@ import Image from "next/image";
 
 export default function SignIn() {
   return (
-    <div className="flex flex-col bg-light-background dark:bg-dark-background">
+    <div className="min-h-screen flex flex-col bg-light-background dark:bg-dark-background">
       {/* Header (Logo + Theme Toggle) */}
       <div className="w-full flex flex-col items-center bg-light-surface dark:bg-dark-surface p-4 relative">
         <ThemeToggle />

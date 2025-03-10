@@ -19,7 +19,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${poppins.className} bg-light-background dark:bg-dark-background`}>
+    <html
+      lang="en"
+      className={`${poppins.className} h-full bg-light-background dark:bg-dark-background`}
+    >
       <body>{children}</body>
     </html>
   );
