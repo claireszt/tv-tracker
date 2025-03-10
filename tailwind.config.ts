@@ -18,6 +18,7 @@ export default {
           primary: "#a78bfa",
           secondary: "#f472b6",
           accent: "#65d7ae",
+          error: "#e63946",
         },
         dark: {
           background: "#1a1a1a",
@@ -27,6 +28,7 @@ export default {
           primary: "#8f6bea",
           secondary: "#e45ca4",
           accent: "#2bbf87",
+          error: "#ff6b6b",
         },
       },
       fontSize: {
