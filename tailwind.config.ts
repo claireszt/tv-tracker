@@ -65,6 +65,9 @@ export default {
         tablet: "768px",
         desktop: "1440px",
       },
+      letterSpacing: {
+        wider: "0.02em", // 2% letter spacing
+      },
     },
   },
   plugins: [],
