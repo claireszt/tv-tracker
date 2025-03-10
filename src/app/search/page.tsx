@@ -1,37 +1,35 @@
 "use client";
 
-import Input from "@/components/Input";
-import SearchResults from "@/components/SearchResults";
-import React, { useState } from "react";
-import { useDebounce } from "use-debounce";
+// import React, { useState } from "react";
+// import { useDebounce } from "use-debounce";
 
 export default function SearchPage() {
-  const [query, setQuery] = useState("");
-  const [debouncedQuery] = useDebounce(query, 100);
-  const [results, setResults] = useState<any[]>([]);
-  const [loading, setLoading] = useState(false);
+  // const [query, setQuery] = useState("");
+  // const [debouncedQuery] = useDebounce(query, 100);
+  // const [results, setResults] = useState<any[]>([]);
+  // const [loading, setLoading] = useState(false);
 
-  async function fetchSearchResults() {
-    if (!debouncedQuery.trim()) {
-      setResults([]);
-      return;
-    }
+  // async function fetchSearchResults() {
+  //   if (!debouncedQuery.trim()) {
+  //     setResults([]);
+  //     return;
+  //   }
 
-    setLoading(true);
-    const res = await fetch(`/api/tvdb/search?q=${debouncedQuery}`);
-    const data = await res.json();
+  //   setLoading(true);
+  //   const res = await fetch(`/api/tvdb/search?q=${debouncedQuery}`);
+  //   const data = await res.json();
 
-    setResults(data.data ?? []);
-    setLoading(false);
-  }
+  //   setResults(data.data ?? []);
+  //   setLoading(false);
+  // }
 
-  React.useEffect(() => {
-    fetchSearchResults();
-  }, [debouncedQuery]);
+  // React.useEffect(() => {
+  //   fetchSearchResults();
+  // }, [debouncedQuery]);
 
   return (
     <div className="max-w-xl mx-auto p-m">
-      <h1 className="text-h1 mobile:text-h1-mobile font-heading text-light-text mb-4">
+      {/* <h1 className="text-h1 mobile:text-h1-mobile font-heading text-light-text mb-4">
         Search for a TV Show
       </h1>
 
@@ -51,7 +49,7 @@ export default function SearchPage() {
         </div>
       )}
 
-      <SearchResults results={results} />
+      <SearchResults results={results} /> */}
     </div>
   );
 }

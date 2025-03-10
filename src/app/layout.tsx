@@ -1,10 +1,8 @@
 import type { Metadata } from "next";
-// eslint-disable-next-line camelcase
-import { Playfair_Display, Poppins } from "next/font/google";
+import { Poppins } from "next/font/google";
 import React from "react";
 import "./globals.css";
 
-const playfair = Playfair_Display({ subsets: ["latin"], weight: ["400", "700"] });
 const poppins = Poppins({ subsets: ["latin"], weight: ["400", "600"] });
 
 export const metadata: Metadata = {
