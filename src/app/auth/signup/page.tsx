@@ -3,9 +3,48 @@
 import Button from "@/components/ui/Button";
 import Input from "@/components/ui/Input";
 import ThemeToggle from "@/components/ui/ThemeToggle";
+import { zodResolver } from "@hookform/resolvers/zod";
 import Image from "next/image";
+import { useState } from "react";
+import { useForm } from "react-hook-form";
+import * as z from "zod";
+
+// Define Validation Schema
+const signUpSchema = z
+  .object({
+    username: z.string().min(3, "Username must be at least 3 characters"),
+    email: z.string().email("Invalid email address"),
+    password: z.string().min(6, "Password must be at least 6 characters"),
+    confirmPassword: z.string(),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: "Passwords do not match",
+    path: ["confirmPassword"],
+  });
 
 export default function SignUp() {
+  const [loading, setLoading] = useState(false);
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isValid },
+  } = useForm({
+    resolver: zodResolver(signUpSchema),
+    mode: "onBlur",
+    criteriaMode: "all",
+  });
+
+  const onSubmit = async (data: any) => {
+    setLoading(true);
+    try {
+      // eslint-disable-next-line no-console
+      console.log("Form Submitted:", data);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="min-h-screen flex flex-col bg-light-background dark:bg-dark-background">
       {/* Header (Logo + Theme Toggle) */}
@@ -30,14 +69,43 @@ export default function SignUp() {
             </span>
           </div>
 
-          {/* Sign-in Form */}
-          <form className="mt-6 space-y-4">
-            <Input label="Username" type="text" placeholder="JaneDoe" />
-            <Input label="Email" type="email" placeholder="jane@doe.com" />
-            <Input label="Password" type="password" placeholder="******" />
-            <Input label="Confirm Password" type="password" placeholder="******" />
+          {/* Form */}
+          <form onSubmit={handleSubmit(onSubmit)} className="mt-6 space-y-4" noValidate>
+            <Input
+              label="Username"
+              type="text"
+              placeholder="JaneDoe"
+              {...register("username")}
+              error={errors.username?.message}
+            />
 
-            <Button text="SUBMIT" />
+            <Input
+              label="Email"
+              type="email"
+              placeholder="jane@doe.com"
+              {...register("email")}
+              error={errors.email?.message}
+            />
+
+            <Input
+              label="Password"
+              type="password"
+              placeholder="******"
+              {...register("password")}
+              error={errors.password?.message}
+            />
+
+            <Input
+              label="Confirm Password"
+              type="password"
+              placeholder="******"
+              {...register("confirmPassword")}
+              error={errors.confirmPassword?.message}
+            />
+
+            <div className="flex justify-center">
+              <Button text={loading ? "Loading..." : "SUBMIT"} disabled={loading || !isValid} />
+            </div>
           </form>
 
           {/* Sign-up Link */}
