@@ -16,9 +16,6 @@ const playfair = Playfair_Display({
 export const metadata: Metadata = {
   title: "TV Tracker - Keep Track of Your Shows",
   description: "Easily track your watched TV episodes and discover new shows.",
-  icons: {
-    icon: "/icon.png",
-  },
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {

@@ -4,9 +4,9 @@ services:
     restart: always
     container_name: dev-db
     environment:
-      POSTGRES_USER: dev_user # ✅ Matches DATABASE_URL
-      POSTGRES_PASSWORD: dev_password
-      POSTGRES_DB: dev_db
+      POSTGRES_USER: dev_claire
+      POSTGRES_PASSWORD: ak1h6IjcBtY^
+      POSTGRES_DB: tvtracker_dev
     ports:
       - "5433:5432"
     volumes:
@@ -19,7 +19,7 @@ services:
       - dev-db
     environment:
       NODE_ENV: development
-      DATABASE_URL: "postgresql://dev_user:dev_password@dev-db:5432/dev_db" # ✅ Matches PostgreSQL credentials
+      DATABASE_URL: "postgresql://dev_claire:ak1h6IjcBtY^@dev-db:5432/tvtracker_dev" # ✅ Matches PostgreSQL credentials
     ports:
       - "3000:3000"
     command: >
