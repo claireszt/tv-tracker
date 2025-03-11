@@ -4,7 +4,9 @@ import Button from "@/components/ui/Button";
 import Input from "@/components/ui/Input";
 import ThemeToggle from "@/components/ui/ThemeToggle";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { signIn } from "next-auth/react";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
@@ -32,11 +34,25 @@ export default function SignIn() {
     criteriaMode: "all",
   });
 
+  const router = useRouter();
+
   const onSubmit = async (data: any) => {
     setLoading(true);
     try {
-      // eslint-disable-next-line no-console
-      console.log("Form Submitted:", data);
+      const response = await signIn("credentials", {
+        email: data.email,
+        password: data.password,
+        redirect: false, // Prevents auto-redirect
+      });
+
+      console.log("Sign-in response:", response); // Debugging
+
+      if (response?.error) {
+        console.error("Login failed:", response.error);
+        alert("Invalid email or password");
+      } else {
+        router.push("/search"); // Redirect after successful login
+      }
     } finally {
       setLoading(false);
     }

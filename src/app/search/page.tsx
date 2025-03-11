@@ -50,6 +50,7 @@ export default function SearchPage() {
       )}
 
       <SearchResults results={results} /> */}
+      <h1>Hello</h1>
     </div>
   );
 }
