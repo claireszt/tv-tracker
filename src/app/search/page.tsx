@@ -50,7 +50,11 @@ export default function SearchPage() {
       )}
 
       <SearchResults results={results} /> */}
-      <h1>Hello</h1>
+      <h1 className="mt-2 text-3xl font-bold text-light-text dark:text-dark-text font-heading">
+        Hello !
+      </h1>
+      <p>This page is under construction for now 🛠️</p>
+      <p>Come back later !</p>
     </div>
   );
 }
