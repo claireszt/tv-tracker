@@ -1,49 +1,30 @@
 services:
   dev-db:
     image: postgres:14
-    container_name: tv-tracker-dev-db
     restart: always
+    container_name: dev-db
     environment:
-      POSTGRES_USER: ${DEV_DB_USER}
-      POSTGRES_PASSWORD: ${DEV_DB_PASSWORD}
-      POSTGRES_DB: ${DEV_DB_NAME}
-      POSTGRES_HOST_AUTH_METHOD: md5
+      POSTGRES_USER: dev_claire
+      POSTGRES_PASSWORD: ak1h6IjcBtY^
+      POSTGRES_DB: tvtracker_dev
     ports:
       - "5433:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data # ✅ Persistent storage
 
-  staging-db:
-    image: postgres:14
-    container_name: tv-tracker-staging-db
-    restart: always
-    environment:
-      POSTGRES_USER: ${STAGING_DB_USER}
-      POSTGRES_PASSWORD: ${STAGING_DB_PASSWORD}
-      POSTGRES_DB: ${STAGING_DB_NAME}
-      POSTGRES_HOST_AUTH_METHOD: md5
-    ports:
-      - "5435:5432"
-
-  prod-db:
-    image: postgres:14
-    container_name: tv-tracker-prod-db
-    restart: always
-    environment:
-      POSTGRES_USER: ${PROD_DB_USER}
-      POSTGRES_PASSWORD: ${PROD_DB_PASSWORD}
-      POSTGRES_DB: ${PROD_DB_NAME}
-      POSTGRES_HOST_AUTH_METHOD: md5
-    ports:
-      - "5434:5432"
-
-  app:
+  tv-tracker-app:
     build: .
     container_name: tv-tracker-app
-    ports:
-      - "3000:3000"
-    environment:
-      NODE_ENV: development
-      DATABASE_URL: ${DATABASE_URL}
     depends_on:
       - dev-db
-      - staging-db
-      - prod-db
+    environment:
+      NODE_ENV: development
+      DATABASE_URL: "postgresql://dev_claire:ak1h6IjcBtY^@dev-db:5432/tvtracker_dev" # ✅ Matches PostgreSQL credentials
+    ports:
+      - "3000:3000"
+    command: >
+      sh -c "npx prisma migrate deploy &&
+             npm run dev"  # ✅ Ensures DB migrations run before starting Next.js
+
+volumes:
+  pgdata:

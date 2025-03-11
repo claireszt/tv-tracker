@@ -1,18 +1,27 @@
-# Use official Node.js LTS image
+# Use Node.js LTS Alpine image
 FROM node:lts-alpine
 
 # Set working directory
 WORKDIR /app
 
-# Copy package.json and install dependencies
-COPY package.json ./
-RUN npm install
+# Install required dependencies
+RUN apk add --no-cache python3 g++ make
+
+# Copy package.json and install all dependencies (including dev)
+COPY package.json package-lock.json ./
+RUN npm install 
+
+# Run Husky install (only required once)
+RUN npm run prepare
+
+# Remove dev dependencies to keep image small
+RUN npm prune --production
 
 # Copy all project files
 COPY . .
 
-# Expose port 3000
+# Expose port
 EXPOSE 3000
 
-# Run the Next.js development server
+# Start the app
 CMD ["npm", "run", "dev"]

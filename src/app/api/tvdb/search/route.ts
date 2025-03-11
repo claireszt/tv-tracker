@@ -1,4 +1,4 @@
-import { getTVDBToken } from "@/lib/tvdb";
+import { getTVDBToken } from "@/lib/services/tvdbService";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(req: NextRequest) {
