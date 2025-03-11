@@ -4,9 +4,12 @@ import Button from "@/components/ui/Button";
 import Input from "@/components/ui/Input";
 import ThemeToggle from "@/components/ui/ThemeToggle";
 import { zodResolver } from "@hookform/resolvers/zod";
-import Image from "next/image";
-import { useEffect, useState } from "react";
+import { signIn } from "next-auth/react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
+import toast from "react-hot-toast";
 import * as z from "zod";
 
 // Define Validation Schema
@@ -18,10 +21,6 @@ const signInSchema = z.object({
 export default function SignIn() {
   const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
-    window.scrollTo(0, 0);
-  }, []);
-
   const {
     register,
     handleSubmit,
@@ -32,11 +31,23 @@ export default function SignIn() {
     criteriaMode: "all",
   });
 
+  const router = useRouter();
+
   const onSubmit = async (data: any) => {
     setLoading(true);
     try {
-      // eslint-disable-next-line no-console
-      console.log("Form Submitted:", data);
+      const response = await signIn("credentials", {
+        email: data.email,
+        password: data.password,
+        redirect: false, // Prevents auto-redirect
+      });
+
+      if (response?.ok) {
+        toast.success("Login success! Redirecting...");
+        setTimeout(() => router.push("/dashboard"), 500);
+      } else {
+        toast.error(`Login failed: ${response?.error || "Unknown error"}`);
+      }
     } finally {
       setLoading(false);
     }
@@ -47,7 +58,6 @@ export default function SignIn() {
       {/* Header (Logo + Theme Toggle) */}
       <div className="w-full flex flex-col items-center bg-light-surface dark:bg-dark-surface p-4 relative">
         <ThemeToggle />
-        <Image src="/icon.png" alt="TV Tracker Logo" width={80} height={80} />
         <h1 className="mt-2 text-3xl font-bold text-light-text dark:text-dark-text text-center font-heading">
           WELCOME TO <br /> TV TRACKER
         </h1>
@@ -61,9 +71,9 @@ export default function SignIn() {
             <span className="mr-4 text-light-text dark:text-dark-text font-bold border-b-2 border-light-secondary dark:border-dark-secondary pb-1">
               SIGN IN
             </span>
-            <a href="/auth/signup" className="text-light-text dark:text-dark-text opacity-70">
+            <Link href="/auth/signup" className="text-light-text dark:text-dark-text opacity-70">
               SIGN UP
-            </a>
+            </Link>
           </div>
 
           {/* Sign-in Form */}
