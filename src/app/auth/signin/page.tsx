@@ -7,8 +7,9 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { signIn } from "next-auth/react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
+import toast from "react-hot-toast";
 import * as z from "zod";
 
 // Define Validation Schema
@@ -19,10 +20,6 @@ const signInSchema = z.object({
 
 export default function SignIn() {
   const [loading, setLoading] = useState(false);
-
-  useEffect(() => {
-    window.scrollTo(0, 0);
-  }, []);
 
   const {
     register,
@@ -45,13 +42,11 @@ export default function SignIn() {
         redirect: false, // Prevents auto-redirect
       });
 
-      console.log("Sign-in response:", response); // Debugging
-
-      if (response?.error) {
-        console.error("Login failed:", response.error);
-        alert("Invalid email or password");
+      if (response?.ok) {
+        toast.success("Login success! Redirecting...");
+        setTimeout(() => router.push("/dashboard"), 500);
       } else {
-        router.push("/search"); // Redirect after successful login
+        toast.error(`Login failed: ${response?.error || "Unknown error"}`);
       }
     } finally {
       setLoading(false);

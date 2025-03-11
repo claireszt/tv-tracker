@@ -5,8 +5,10 @@ import Input from "@/components/ui/Input";
 import ThemeToggle from "@/components/ui/ThemeToggle";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
+import toast from "react-hot-toast";
 import * as z from "zod";
 
 // Define Validation Schema
@@ -24,6 +26,7 @@ const signUpSchema = z
 
 export default function SignUp() {
   const [loading, setLoading] = useState(false);
+  const router = useRouter();
 
   const {
     register,
@@ -38,8 +41,20 @@ export default function SignUp() {
   const onSubmit = async (data: any) => {
     setLoading(true);
     try {
-      // eslint-disable-next-line no-console
-      console.log("Form Submitted:", data);
+      const response = await fetch("/api/auth/signup", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      });
+
+      const result = await response.json();
+
+      if (response.ok) {
+        toast.success("Account created successfully! Redirecting...");
+        setTimeout(() => router.push("/auth/signin"), 2000);
+      } else {
+        toast.error(result.error || "Sign-up failed");
+      }
     } finally {
       setLoading(false);
     }

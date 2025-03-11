@@ -1,10 +1,9 @@
+import prisma from "@/lib/prisma";
+import { findUserByEmail } from "@/lib/services/authService";
 import { PrismaAdapter } from "@next-auth/prisma-adapter";
-import { PrismaClient } from "@prisma/client";
-import bcrypt from "bcrypt";
+import bcrypt from "bcryptjs";
 import NextAuth from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
-
-const prisma = new PrismaClient();
 
 export const authOptions = {
   adapter: PrismaAdapter(prisma),
@@ -20,9 +19,7 @@ export const authOptions = {
           throw new Error("Missing email or password");
         }
 
-        const user = await prisma.user.findUnique({
-          where: { email: credentials.email },
-        });
+        const user = await findUserByEmail(credentials.email);
 
         if (!user) {
           throw new Error("No user found");
@@ -46,16 +43,21 @@ export const authOptions = {
     async jwt({ token, user }: { token: any; user?: any }) {
       if (user) {
         token.id = user.id;
+        token.username = user.username;
       }
       return token;
     },
     async session({ session, token }: { session: any; token?: any }) {
-      session.user.id = token.id;
+      if (token?.id && token?.username) {
+        session.user = {
+          id: token.id,
+          username: token.username,
+        };
+      }
       return session;
     },
   },
 };
 
-// ✅ Use named exports for API routes
 const handler = NextAuth(authOptions);
 export { handler as GET, handler as POST };
