@@ -11,6 +11,9 @@ categories:
   - title: "🐛 Bug Fixes"
     labels:
       - "bug"
+  - title: "🎨 UI/UX"
+    labels:
+      - "ui/ux"
   - title: "🔧 Maintenance"
     labels:
       - "maintenance"
