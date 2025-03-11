@@ -9,7 +9,7 @@ export const metadata: Metadata = {
   title: "TV Tracker - Keep Track of Your Shows",
   description: "Easily track your watched TV episodes and discover new shows.",
   icons: {
-    icon: "/ICON.png",
+    icon: "/icon.png",
   },
 };
 
