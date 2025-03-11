@@ -5,7 +5,7 @@ import Input from "@/components/ui/Input";
 import ThemeToggle from "@/components/ui/ThemeToggle";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { signIn } from "next-auth/react";
-import Image from "next/image";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
@@ -58,7 +58,6 @@ export default function SignIn() {
       {/* Header (Logo + Theme Toggle) */}
       <div className="w-full flex flex-col items-center bg-light-surface dark:bg-dark-surface p-4 relative">
         <ThemeToggle />
-        <Image src="/icon.png" alt="TV Tracker Logo" width={80} height={80} />
         <h1 className="mt-2 text-3xl font-bold text-light-text dark:text-dark-text text-center font-heading">
           WELCOME TO <br /> TV TRACKER
         </h1>
@@ -72,9 +71,9 @@ export default function SignIn() {
             <span className="mr-4 text-light-text dark:text-dark-text font-bold border-b-2 border-light-secondary dark:border-dark-secondary pb-1">
               SIGN IN
             </span>
-            <a href="/auth/signup" className="text-light-text dark:text-dark-text opacity-70">
+            <Link href="/auth/signup" className="text-light-text dark:text-dark-text opacity-70">
               SIGN UP
-            </a>
+            </Link>
           </div>
 
           {/* Sign-in Form */}

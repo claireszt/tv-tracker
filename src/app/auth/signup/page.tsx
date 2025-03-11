@@ -4,7 +4,6 @@ import Button from "@/components/ui/Button";
 import Input from "@/components/ui/Input";
 import ThemeToggle from "@/components/ui/ThemeToggle";
 import { zodResolver } from "@hookform/resolvers/zod";
-import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
@@ -65,7 +64,6 @@ export default function SignUp() {
       {/* Header (Logo + Theme Toggle) */}
       <div className="w-full flex flex-col items-center bg-light-surface dark:bg-dark-surface p-6 relative">
         <ThemeToggle />
-        <Image src="/icon.png" alt="TV Tracker Logo" width={80} height={80} />
         <h1 className="mt-2 text-3xl font-bold text-light-text dark:text-dark-text text-center font-heading">
           WELCOME TO <br /> TV TRACKER
         </h1>
