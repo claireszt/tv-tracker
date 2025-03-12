@@ -60,7 +60,7 @@ export default function SearchPage() {
   return (
     <>
       <Navbar />
-      <div className="max-w-4xl mx-auto px-4 py-6 md:py-12 pt-[100px] md:pt-[120px]">
+      <div className="min-h-screen mx-auto px-4 py-6 md:py-12 pt-[100px] md:pt-[120px] bg-light-background dark:bg-dark-background">
         <div className="flex flex-col items-center">
           <h1 className="text-2xl md:text-3xl font-heading text-light-text dark:text-dark-text mb-6 text-center flex items-center gap-2">
             🔍 Search for a TV Show
@@ -78,7 +78,7 @@ export default function SearchPage() {
         </div>
 
         {loading && (
-          <div className="mt-4 flex items-center justify-center gap-2 text-light-text opacity-70 text-lg">
+          <div className="mt-4 flex items-center justify-center gap-2 text-light-text dark:text-dark-text opacity-70 text-lg">
             <span className="animate-spin h-5 w-5 border-2 border-light-border border-t-transparent rounded-full"></span>
             Searching...
           </div>

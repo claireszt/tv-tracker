@@ -1,24 +1,27 @@
 "use client";
 
+import Accordion from "@/components/ui/Accordion";
 import Button from "@/components/ui/Button";
 import Navbar from "@/components/ui/NavBar";
+import StatusPill from "@/components/ui/StatusPill";
 import { TVShowDetail } from "@/models/tvShow";
-import { useParams } from "next/navigation";
+import Image from "next/image";
+import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 export default function ShowDetailPage() {
   const { id } = useParams();
+  const router = useRouter();
   const [showDetail, setShowDetail] = useState<TVShowDetail | null>(null);
   const [loading, setLoading] = useState(true);
+  const [watchlist, setWatchlist] = useState(false);
+  const [activeSeason, setActiveSeason] = useState<number | null>(null);
 
   useEffect(() => {
     async function fetchDetails() {
       setLoading(true);
       try {
         const res = await fetch(`/api/tvdb/show/${id}`);
-        if (!res.ok) {
-          throw new Error(`HTTP error! status: ${res.status}`);
-        }
         const data = await res.json();
         setShowDetail(data);
       } catch (error) {
@@ -50,47 +53,80 @@ export default function ShowDetailPage() {
   return (
     <>
       <Navbar />
-      <div className="max-w-4xl mx-auto px-4 py-6 md:py-12 pt-[100px] md:pt-[120px]">
-        <h1 className="text-3xl font-heading text-light-text dark:text-dark-text">
-          {showDetail.title}
-        </h1>
-        <p className="mt-4 text-base text-light-text dark:text-dark-text">{showDetail.synopsis}</p>
-
-        {/* Display Seasons & Episodes */}
-        {showDetail.seasons.length > 0 && (
-          <div className="mt-8">
-            <h2 className="text-2xl font-heading text-light-text dark:text-dark-text mb-4">
-              Seasons
-            </h2>
-            {showDetail.seasons.map((season, i) => (
-              <div key={`${season.seasonNumber}-${i}`} className="mb-6">
-                <h3 className="text-xl font-bold text-light-text dark:text-dark-text">
-                  Season {season.seasonNumber}
-                </h3>
-                <ul className="list-disc list-inside mt-2">
-                  {season.episodes.map((ep, j) => (
-                    <li
-                      key={`${ep.id}-${j}`}
-                      className="text-base text-light-text dark:text-dark-text"
-                    >
-                      {ep.name}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            ))}
-          </div>
-        )}
-
-        {/* "Add to Watchlist" Button */}
-        <div className="mt-8">
+      <div className="min-h-screen px-4 py-6 md:py-12 pt-[100px] md:pt-[120px] bg-light-background dark:bg-dark-background">
+        {/* Add to Watchlist */}
+        <div className="w-full px-6 pb-4 flex items-center justify-center">
           <Button
-            text="Add to Watchlist"
-            onClick={() => {
-              // Implement actual watchlist logic
-              alert("Added to Watchlist!");
-            }}
+            text={watchlist ? "Added to Watchlist" : "Add to Watchlist"}
+            onClick={() => setWatchlist(!watchlist)}
           />
+        </div>
+        {/* Header Section */}
+        <div className="flex flex-col sm:flex-row items-center sm:items-start gap-6 sm:gap-8">
+          <div className="relative w-32 h-48 bg-light-border dark:bg-dark-border overflow-hidden rounded-lg shadow-md">
+            {showDetail.image ? (
+              <Image
+                src={showDetail.image}
+                alt={showDetail.title}
+                fill
+                sizes="128px"
+                className="object-cover"
+              />
+            ) : (
+              <div className="w-full h-full bg-light-border dark:bg-dark-border" />
+            )}
+          </div>
+
+          <div className="flex flex-col gap-3 sm:gap-4 text-center sm:text-left">
+            <h1 className="text-3xl font-heading font-semibold text-light-text dark:text-dark-text">
+              {showDetail.title}
+            </h1>
+            <p className="text-base text-light-text dark:text-dark-text opacity-70">
+              {showDetail.year}
+            </p>
+            <div className="flex justify-center sm:justify-start">
+              <StatusPill status={showDetail.status} />
+            </div>
+          </div>
+        </div>
+        {/* Summary Section */}
+        <div className="mt-6 p-4 sm:p-6 bg-light-surface dark:bg-dark-surface rounded-lg shadow-md">
+          <h2 className="text-lg font-semibold text-light-text dark:text-dark-text mb-2">
+            Summary
+          </h2>
+          <p className="text-base text-justify text-light-text dark:text-dark-text opacity-80 leading-relaxed">
+            {showDetail.synopsis}
+          </p>
+        </div>
+        {/* Seasons Section */}
+        <div className="mt-8">
+          <h2 className="text-2xl font-heading text-light-text dark:text-dark-text mb-4">
+            Seasons
+          </h2>
+          {showDetail.seasons.map((season) => (
+            <Accordion
+              key={season.seasonNumber}
+              title={season.seasonNumber === 0 ? "Specials" : `Season ${season.seasonNumber}`}
+              isOpen={activeSeason === season.seasonNumber}
+              onClick={() =>
+                setActiveSeason(activeSeason === season.seasonNumber ? null : season.seasonNumber)
+              }
+            >
+              <ul className="mt-2 space-y-2">
+                {season.episodes.map((ep) => (
+                  <li
+                    key={ep.id}
+                    className="flex items-center justify-between p-2 rounded-lg bg-light-surface dark:bg-dark-surface"
+                  >
+                    <div className="flex items-center gap-3">
+                      <span className="text-sm font-mono opacity-70">{ep.episodeNumber}.</span>
+                      <span className="text-base">{ep.name}</span>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            </Accordion>
+          ))}
         </div>
       </div>
     </>

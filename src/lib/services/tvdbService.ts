@@ -117,7 +117,9 @@ export async function getShowDetails(tvdbId: string): Promise<TVShowDetail | nul
       tvdb_id: seriesData.tvdbId || seriesData.id,
       title: seriesData.name,
       synopsis: seriesData.overview,
-      image: seriesData.image_url,
+      image: seriesData.image,
+      year: seriesData.year,
+      status: seriesData.status.name,
       seasons,
     };
 
