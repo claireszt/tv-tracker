@@ -19,12 +19,13 @@ services:
       - dev-db
     environment:
       NODE_ENV: development
-      DATABASE_URL: "postgresql://dev_claire:ak1h6IjcBtY^@dev-db:5432/tvtracker_dev" # ✅ Matches PostgreSQL credentials
+      DATABASE_URL: ${DATABASE_URL} # ✅ Uses environment variables
     ports:
       - "3000:3000"
     command: >
-      sh -c "npx prisma migrate deploy &&
-             npm run dev"  # ✅ Ensures DB migrations run before starting Next.js
+      sh -c "npx prisma generate &&
+             npx prisma migrate deploy &&
+             npm run dev"  # ✅ Ensures DB migrations run before Next.js starts
 
 volumes:
   pgdata:

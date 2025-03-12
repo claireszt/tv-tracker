@@ -1,13 +1,18 @@
 import { withAuth } from "next-auth/middleware";
 
-// ✅ Apply `withAuth` as a middleware function, not inside another function
 export default withAuth({
   pages: {
     signIn: "/auth/signin",
   },
+  callbacks: {
+    authorized: ({ token }) => {
+      // ✅ Allow access if user is signed in, otherwise redirect
+      return !!token;
+    },
+  },
 });
 
-// ✅ Exclude public routes (like /auth/signin & /auth/signup) from authentication
+// ✅ Ensure that /auth/signin doesn't get stuck in an infinite loop
 export const config = {
   matcher: ["/((?!auth/signin|auth/signup|public|_next/static|_next/image|favicon.ico).*)"],
 };
