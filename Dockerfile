@@ -9,6 +9,7 @@ RUN apk add --no-cache python3 g++ make
 
 # Copy package.json and install all dependencies (including dev)
 COPY package.json package-lock.json ./
+COPY prisma ./prisma
 RUN npm install 
 
 # Remove dev dependencies to keep image small
