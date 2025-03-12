@@ -1,4 +1,4 @@
-import { authOptions } from "@/app/api/auth/[...nextauth]/route"; // Correct path
+import { authOptions } from "@/lib/auth"; // ✅ Import from lib/auth.ts
 import { getServerSession } from "next-auth";
 import { redirect } from "next/navigation";
 
