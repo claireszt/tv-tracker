@@ -104,18 +104,27 @@ export default function ShowDetailPage() {
   }
 
   const addToWatchlist = async () => {
+    const imageUrl = showDetail.image || "";
+    console.log("📌 Sending imageUrl to API:", imageUrl); // ✅ Debugging Log
+
     try {
       const res = await fetch("/api/watchlist/add", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          tvdbId: showDetail.tvdb_id, // ✅ Use real TVDB ID
+          tvdbId: showDetail.tvdb_id,
           title: showDetail.title,
+          imageUrl, // ✅ Ensure this is included
+          totalEpisodes: showDetail.seasons.reduce(
+            (acc, season) => acc + season.episodes.length,
+            0
+          ),
         }),
       });
 
       const data = await res.json();
       if (res.ok) {
+        console.log("✅ Show added successfully:", data);
         setWatchlist(true);
       } else {
         console.error("❌ Failed to add show to watchlist:", data.error);

@@ -14,6 +14,20 @@ export async function addShowToWatchlist(
     const userId = session.user.id;
     const body = await req.json();
 
+    console.log("📌 Received API Data:", body); // ✅ Debugging Log
+
+    if (!body.tvdbId || !body.title || typeof body.totalEpisodes !== "number") {
+      return { error: "Invalid data: Missing required fields", status: 400 };
+    }
+
+    // ✅ Log values before inserting into the database
+    console.log(`📌 Inserting Show:
+      tvdbId: ${body.tvdbId}
+      title: ${body.title}
+      totalEpisodes: ${body.totalEpisodes}
+      imageUrl: ${body.imageUrl}
+    `);
+
     await prisma.$transaction(async (tx) => {
       const show = await tx.show.upsert({
         where: { tvdbId: body.tvdbId },
@@ -21,6 +35,8 @@ export async function addShowToWatchlist(
         create: {
           tvdbId: body.tvdbId,
           title: body.title,
+          image: body.imageUrl,
+          totalEpisodes: body.totalEpisodes,
         },
       });
 
@@ -59,14 +75,51 @@ export async function getWatchlist(): Promise<{
 
     const userId = session.user.id;
 
+    console.log("🔹 Fetching Watchlist for User:", userId);
     const watchlist = await prisma.userWatchlist.findMany({
       where: { userId: userId },
       include: {
-        show: true,
+        show: {
+          select: {
+            id: true,
+            tvdbId: true,
+            title: true,
+            image: true, // ✅ Include image
+            totalEpisodes: true, // ✅ Include total episode count
+            episodes: { select: { id: true } },
+          },
+        },
       },
     });
 
-    return { watchlist };
+    // ✅ Get watched episodes for this user
+    const watchedEpisodes = await prisma.watchedEpisode.findMany({
+      where: { userId: userId },
+      select: { episodeId: true },
+    });
+
+    const watchedEpisodeIds = new Set(watchedEpisodes.map((ep) => ep.episodeId));
+
+    // ✅ Calculate percentage watched per show
+    const watchlistWithProgress = watchlist.map((entry) => {
+      const totalEpisodes = entry.show.totalEpisodes ?? entry.show.episodes.length; // ✅ Ensure we have an episode count
+      const watchedCount = entry.show.episodes.filter((ep) => watchedEpisodeIds.has(ep.id)).length;
+      const progress = totalEpisodes > 0 ? Math.round((watchedCount / totalEpisodes) * 100) : 0;
+
+      return {
+        ...entry,
+        progress,
+        show: {
+          ...entry.show,
+          totalEpisodes, // ✅ Ensure total episodes are included
+          imageUrl: entry.show.image, // ✅ Ensure image is included
+        },
+      };
+    });
+
+    console.log("✅ Watchlist Fetched:", watchlistWithProgress);
+
+    return { watchlist: watchlistWithProgress };
   } catch (error) {
     console.error("❌ Prisma Query Error:", error);
     return { error: "Internal server error", status: 500 };

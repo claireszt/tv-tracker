@@ -25,6 +25,8 @@ model Show {
   createdAt  DateTime @default(now())
   episodes   Episode[]
   followers  UserWatchlist[]
+  image      String?  
+  totalEpisodes Int?     
 }
 
 model Episode {

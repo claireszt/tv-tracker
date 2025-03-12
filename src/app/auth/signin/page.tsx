@@ -45,7 +45,7 @@ export default function SignIn() {
 
       if (response?.ok) {
         toast.success("Login success! Redirecting...");
-        setTimeout(() => router.push("/dashboard"), 500);
+        setTimeout(() => router.push("/watchlist"), 500);
       } else {
         toast.error(`Login failed: ${response?.error || "Unknown error"}`);
       }
