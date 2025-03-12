@@ -1,13 +1,50 @@
-import { searchTVShows } from "@/lib/services/tvdbService";
+import { getTVDBToken } from "@/lib/services/tvdbService";
+import { TVShow } from "@/models/tvShow";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(req: NextRequest) {
-  const query = new URL(req.url).searchParams.get("q");
+  const searchParams = new URL(req.url).searchParams;
+  const query = searchParams.get("q");
 
   if (!query) {
     return NextResponse.json({ message: "Query parameter 'q' is required." }, { status: 400 });
   }
 
-  const searchResults = await searchTVShows(query);
-  return NextResponse.json(searchResults);
+  const TVDB_API_URL = process.env.TVDB_API_URL;
+
+  try {
+    const token = await getTVDBToken();
+    const response = await fetch(`${TVDB_API_URL}/search?query=${encodeURIComponent(query)}`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+
+    if (!response.ok) {
+      const searchError = await response.json();
+      return NextResponse.json(
+        { message: "Search request failed", error: searchError },
+        { status: response.status }
+      );
+    }
+
+    const data = await response.json();
+
+    // ✅ Convert API response into `TVShow` model
+    const formattedResults: TVShow[] =
+      data.data?.map((item: any) => ({
+        id: item.id,
+        tvdb_id: item.tvdb_id,
+        name: item.name,
+        image: item.image_url || undefined, // ✅ Map `image_url` to `image`
+        year: item.year,
+      })) ?? [];
+
+    return NextResponse.json({ data: formattedResults });
+  } catch (error: any) {
+    console.error("Error fetching from TVDB API:", error);
+
+    return NextResponse.json(
+      { message: "Internal Server Error", error: error.message },
+      { status: 500 }
+    );
+  }
 }
