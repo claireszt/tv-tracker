@@ -15,6 +15,11 @@ export interface TVShowDetail {
   image?: string;
   seasons: Season[];
   status: string;
+  originalCountry: string;
+  originalLanguage: string;
+  firstAired: string;
+  lastAired?: string;
+  nextAired?: string;
 }
 
 export interface Season {

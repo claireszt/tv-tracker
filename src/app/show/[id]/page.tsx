@@ -3,15 +3,15 @@
 import Accordion from "@/components/ui/Accordion";
 import Button from "@/components/ui/Button";
 import Navbar from "@/components/ui/NavBar";
+import ShowInfo from "@/components/ui/ShowInfo";
 import StatusPill from "@/components/ui/StatusPill";
 import { TVShowDetail } from "@/models/tvShow";
 import Image from "next/image";
-import { useParams, useRouter } from "next/navigation";
+import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 
 export default function ShowDetailPage() {
   const { id } = useParams();
-  const router = useRouter();
   const [showDetail, setShowDetail] = useState<TVShowDetail | null>(null);
   const [loading, setLoading] = useState(true);
   const [watchlist, setWatchlist] = useState(false);
@@ -89,6 +89,9 @@ export default function ShowDetailPage() {
             </div>
           </div>
         </div>
+
+        <ShowInfo showDetail={showDetail} />
+
         {/* Summary Section */}
         <div className="mt-6 p-4 sm:p-6 bg-light-surface dark:bg-dark-surface rounded-lg shadow-md">
           <h2 className="text-lg font-semibold text-light-text dark:text-dark-text mb-2">

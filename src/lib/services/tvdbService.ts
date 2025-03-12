@@ -121,6 +121,11 @@ export async function getShowDetails(tvdbId: string): Promise<TVShowDetail | nul
       year: seriesData.year,
       status: seriesData.status.name,
       seasons,
+      originalCountry: seriesData.originalCountry,
+      originalLanguage: seriesData.originalLanguage,
+      firstAired: seriesData.firstAired,
+      lastAired: seriesData.lastAired,
+      nextAired: seriesData.nextAired,
     };
 
     return showDetail;
