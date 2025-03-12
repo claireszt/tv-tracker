@@ -26,7 +26,8 @@ async function fetchSearchResults(query: string, controller: AbortController) {
     return data;
   } catch (error: any) {
     if (error.name === "AbortError") {
-      console.error("Search request aborted");
+      // eslint-disable-next-line no-console
+      console.log("Search request aborted");
     } else {
       console.error("Search error:", error);
     }

@@ -2,7 +2,6 @@
 
 import { TVShow } from "@/models/tvShow";
 import Image from "next/image";
-import { useRouter } from "next/navigation";
 
 interface SearchResultsProps {
   results: TVShow[];
@@ -11,8 +10,6 @@ interface SearchResultsProps {
 }
 
 const SearchResults: React.FC<SearchResultsProps> = ({ results, loading, query }) => {
-  const router = useRouter();
-
   if (!loading && query.trim() !== "" && results.length === 0) {
     return (
       <p className="mt-6 text-center text-lg text-light-text dark:text-dark-text opacity-70">
