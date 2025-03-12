@@ -1,4 +1,14 @@
-export default function Logo() {
+type LogoSize = "sm" | "md" | "lg";
+
+export default function Logo({ size = "md" }: { size?: LogoSize }) {
+  const sizeClassMap: Record<LogoSize, string> = {
+    sm: "w-16",
+    md: "w-20",
+    lg: "w-32",
+  };
+
+  const sizeClass = sizeClassMap[size];
+
   return (
     <svg
       width="128"
@@ -6,7 +16,7 @@ export default function Logo() {
       viewBox="0 0 128 128"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
-      className="w-20 sm:w-32"
+      className={sizeClass}
     >
       <path
         d="M103.833 33.25H75.6706L87.2312 21.6895L80.1022 14.5605L63.5 31.1627L46.8978 14.5605L39.7689 21.6895L51.3294 33.25H23.1667C17.6057 33.25 13.0833 37.7724 13.0833 43.3333V98.7916C13.0833 104.353 17.6057 108.875 23.1667 108.875H103.833C109.394 108.875 113.917 104.353 113.917 98.7916V43.3333C113.917 37.7724 109.394 33.25 103.833 33.25Z"
