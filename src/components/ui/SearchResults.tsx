@@ -1,9 +1,11 @@
 "use client";
 
+import { TVShow } from "@/models/tvShow";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 
 interface SearchResultsProps {
-  results: { id: string; tvdb_id: string; name: string }[];
+  results: TVShow[];
   loading: boolean;
   query: string;
 }
@@ -26,10 +28,30 @@ const SearchResults: React.FC<SearchResultsProps> = ({ results, loading, query }
       {results.map((show) => (
         <li
           key={show.id}
-          className="p-4 rounded-md hover:bg-light-border dark:hover:bg-dark-border cursor-pointer transition-all text-lg text-light-text dark:text-dark-text"
-          onClick={() => router.push(`/show/${show.tvdb_id}`)}
+          className="p-4 rounded-md flex items-center gap-4 hover:bg-light-border dark:hover:bg-dark-border cursor-pointer transition-all text-lg text-light-text dark:text-dark-text"
         >
-          {show.name}
+          {show.image ? (
+            <div className="relative w-12 h-12 flex items-center justify-center">
+              <Image
+                src={show.image}
+                alt={show.name}
+                width={100} // Intrinsic width (used for aspect ratio)
+                height={150} // Intrinsic height (used for aspect ratio)
+                style={{
+                  maxWidth: "48px", // Limit image width to container's width
+                  objectFit: "contain",
+                }}
+              />
+            </div>
+          ) : (
+            <div className="w-12 h-12 bg-light-border dark:bg-dark-border rounded-md" />
+          )}
+          <div className="flex flex-col gap-1">
+            <span>{show.name}</span>
+            <span className="text-xs text-light-text dark:text-dark-text opacity-70">
+              {show.year}
+            </span>
+          </div>
         </li>
       ))}
     </ul>
