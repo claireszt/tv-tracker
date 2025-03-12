@@ -5,7 +5,7 @@ import Button from "@/components/ui/Button";
 import Navbar from "@/components/ui/NavBar";
 import ShowInfo from "@/components/ui/ShowInfo";
 import StatusPill from "@/components/ui/StatusPill";
-import { TVShowDetail } from "@/models/tvShow";
+import { Episode, TVShowDetail } from "@/models/tvShow";
 import Image from "next/image";
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -16,6 +16,7 @@ export default function ShowDetailPage() {
   const [loading, setLoading] = useState(true);
   const [watchlist, setWatchlist] = useState(false);
   const [activeSeason, setActiveSeason] = useState<number | null>(null);
+  const [watchedEpisodes, setWatchedEpisodes] = useState<string[]>([]);
 
   useEffect(() => {
     async function fetchDetails() {
@@ -25,7 +26,7 @@ export default function ShowDetailPage() {
         const data = await res.json();
         setShowDetail(data);
 
-        // ✅ Check if the show is in the user's watchlist
+        // ✅ Check if the show is in the watchlist
         const watchlistRes = await fetch("/api/watchlist");
         const watchlistData = await watchlistRes.json();
 
@@ -34,6 +35,15 @@ export default function ShowDetailPage() {
             (entry: any) => entry.show.tvdbId === data.tvdb_id
           );
           setWatchlist(isInWatchlist);
+
+          if (isInWatchlist) {
+            // ✅ Fetch watched episodes
+            const watchedRes = await fetch("/api/watchlist/watched-episodes");
+            const watchedData = await watchedRes.json();
+            if (watchedRes.ok) {
+              setWatchedEpisodes(watchedData.watchedEpisodes.map((ep: any) => ep.episodeId));
+            }
+          }
         } else {
           console.error("❌ Failed to fetch watchlist:", watchlistData.error);
         }
@@ -47,6 +57,35 @@ export default function ShowDetailPage() {
 
     if (id) fetchDetails();
   }, [id]);
+
+  const toggleEpisode = async (episode: Episode) => {
+    try {
+      const res = await fetch("/api/watchlist/toggle-episode", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          episodeId: String(episode.id),
+          tvdbId: showDetail?.tvdb_id,
+          title: episode.title,
+          season: episode.season,
+          episodeNumber: episode.episodeNumber,
+        }),
+      });
+
+      const data = await res.json();
+      if (res.ok) {
+        setWatchedEpisodes((prev) =>
+          prev.includes(String(episode.id))
+            ? prev.filter((id) => id !== String(episode.id))
+            : [...prev, String(episode.id)]
+        );
+      } else {
+        console.error("❌ Failed to toggle episode:", data.error);
+      }
+    } catch (error) {
+      console.error("❌ API Request Error:", error);
+    }
+  };
 
   if (loading) {
     return (
@@ -182,6 +221,20 @@ export default function ShowDetailPage() {
                       <span className="text-sm font-mono opacity-70">{ep.episodeNumber}.</span>
                       <span className="text-base">{ep.title}</span>
                     </div>
+
+                    {/* ✅ Show toggle button only if show is in watchlist */}
+                    {watchlist && (
+                      <button
+                        onClick={() => toggleEpisode(ep)}
+                        className={`px-3 py-1 text-sm font-semibold rounded-md transition ${
+                          watchedEpisodes.includes(String(ep.id))
+                            ? "bg-green-500 text-white"
+                            : "bg-gray-500 text-white"
+                        }`}
+                      >
+                        {watchedEpisodes.includes(String(ep.id)) ? "Watched" : "Mark as Watched"}
+                      </button>
+                    )}
                   </li>
                 ))}
               </ul>
