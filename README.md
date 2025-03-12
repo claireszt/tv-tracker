@@ -21,7 +21,6 @@
 ### 🚀 DevOps & CI/CD
 
 - **GitHub Actions** → Automated testing, building, and deployment
-- **Husky & Commitlint** → Enforced commit message standards
 
 ## 🛠 Setup Instructions
 

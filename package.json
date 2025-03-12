@@ -53,11 +53,16 @@
     "prettier": "^3.5.1",
     "prettier-plugin-organize-imports": "^4.1.0",
     "prisma": "^6.4.1",
+    "simple-git-hooks": "^2.11.1",
     "tailwindcss": "^3.4.1",
     "typescript": "^5.7.3",
     "typescript-eslint": "^8.24.1"
   },
   "eslintConfig": {
     "cache": false
+  },
+  "simple-git-hooks": {
+    "pre-commit": "npm run lint && npm run format && npm run build",
+    "pre-push": "npm test && npm run type-check"
   }
 }

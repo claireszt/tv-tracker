@@ -11,9 +11,6 @@ RUN apk add --no-cache python3 g++ make
 COPY package.json package-lock.json ./
 RUN npm install 
 
-# Run Husky install (only required once)
-RUN npm run prepare
-
 # Remove dev dependencies to keep image small
 RUN npm prune --production
 
