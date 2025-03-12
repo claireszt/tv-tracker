@@ -33,6 +33,7 @@ export default function SearchPage() {
   return (
     <div className="max-w-4xl mx-auto px-4 py-6 md:py-12 pt-20">
       <Navbar />
+      <div className="max-w-4xl mx-auto px-4 py-6 md:py-12 pt-[100px] md:pt-[120px]">
       <div className="flex flex-col items-center">
         <h1 className="text-2xl md:text-3xl font-heading text-light-text dark:text-dark-text mb-6 text-center flex items-center gap-2">
           🔍 Search for a TV Show
@@ -58,5 +59,6 @@ export default function SearchPage() {
 
       <SearchResults results={results} loading={loading} query={query} />
     </div>
+    </>
   );
 }
