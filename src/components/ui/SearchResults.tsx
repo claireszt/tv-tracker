@@ -2,6 +2,7 @@
 
 import { TVShow } from "@/models/tvShow";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 
 interface SearchResultsProps {
   results: TVShow[];
@@ -10,6 +11,8 @@ interface SearchResultsProps {
 }
 
 const SearchResults: React.FC<SearchResultsProps> = ({ results, loading, query }) => {
+  const router = useRouter();
+
   if (!loading && query.trim() !== "" && results.length === 0) {
     return (
       <p className="mt-6 text-center text-lg text-light-text dark:text-dark-text opacity-70">
@@ -25,6 +28,7 @@ const SearchResults: React.FC<SearchResultsProps> = ({ results, loading, query }
       {results.map((show) => (
         <li
           key={show.id}
+          onClick={() => router.push(`/show/${show.tvdb_id}`)}
           className="p-4 rounded-md flex items-center gap-4 hover:bg-light-border dark:hover:bg-dark-border cursor-pointer transition-all text-lg text-light-text dark:text-dark-text"
         >
           {show.image ? (

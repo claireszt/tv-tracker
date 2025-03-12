@@ -1,3 +1,5 @@
+import { Episode, Season, TVShowDetail } from "@/models/tvShow";
+
 const TVDB_API_URL = process.env.TVDB_API_URL;
 
 let cachedToken: string | null = process.env.TVDB_ACCESS_TOKEN || null;
@@ -56,5 +58,79 @@ export async function searchTVShows(query: string) {
   } catch (error: any) {
     console.error("Error fetching TVDB search results:", error);
     return { data: [] };
+  }
+}
+
+export async function getShowDetails(tvdbId: string): Promise<TVShowDetail | null> {
+  const TVDB_API_URL = process.env.TVDB_API_URL;
+  try {
+    const token = await getTVDBToken();
+
+    // Fetch series details and extract data
+    const seriesRes = await fetch(`${TVDB_API_URL}/series/${tvdbId}`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    if (!seriesRes.ok) {
+      console.error("Failed to fetch series details. Status:", seriesRes.status);
+      return null;
+    }
+    const { data: seriesData } = await seriesRes.json();
+
+    // Fetch episodes from the default endpoint (page=0)
+    const episodesRes = await fetch(`${TVDB_API_URL}/series/${tvdbId}/episodes/default?page=0`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    if (!episodesRes.ok) {
+      console.error("Failed to fetch episodes. Status:", episodesRes.status);
+      return null;
+    }
+    const episodesJson = await episodesRes.json();
+    const episodesArray: any[] = episodesJson.data?.episodes || [];
+
+    // Group episodes by season
+    const seasonsMap: { [season: number]: Episode[] } = {};
+    episodesArray.forEach((ep) => {
+      const seasonNumber = ep.seasonNumber || 0;
+      if (!seasonsMap[seasonNumber]) {
+        seasonsMap[seasonNumber] = [];
+      }
+      seasonsMap[seasonNumber].push({
+        id: ep.id,
+        name: ep.name,
+        overview: ep.overview,
+        airDate: ep.aired,
+        season: ep.seasonNumber,
+        episodeNumber: ep.number,
+      });
+    });
+
+    const seasons: Season[] = Object.entries(seasonsMap)
+      .map(([season, episodes]) => ({
+        seasonNumber: Number(season),
+        episodes,
+      }))
+      .sort((a, b) => a.seasonNumber - b.seasonNumber);
+
+    // Build and return the TVShowDetail model
+    const showDetail: TVShowDetail = {
+      id: seriesData.id,
+      tvdb_id: seriesData.tvdbId || seriesData.id,
+      title: seriesData.name,
+      synopsis: seriesData.overview,
+      image: seriesData.image,
+      year: seriesData.year,
+      status: seriesData.status.name,
+      seasons,
+      originalCountry: seriesData.originalCountry,
+      originalLanguage: seriesData.originalLanguage,
+      firstAired: seriesData.firstAired,
+      lastAired: seriesData.lastAired,
+      nextAired: seriesData.nextAired,
+    };
+
+    return showDetail;
+  } catch (error: any) {
+    console.error("Error fetching show details:", error);
+    return null;
   }
 }
