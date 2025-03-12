@@ -13,6 +13,7 @@ export default function Dashboard() {
       </h1>
       <p>This page is under construction for now 🛠️</p>
       <p>Come back later!</p>
+      </div>
     </div>
   );
 }
