@@ -2,45 +2,60 @@ generator client {
   provider      = "prisma-client-js"
   binaryTargets = ["native", "linux-musl-openssl-3.0.x"]
 }
+
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
+
 model User {
-  id        String  @id @default(uuid())
-  username  String  @unique
-  email     String  @unique
+  id        String    @id @default(uuid())
+  username  String    @unique
+  email     String    @unique
   password  String
-  createdAt DateTime @default(now())
-  watchlist Watchlist[]
+  createdAt DateTime  @default(now())
+  watchlist UserWatchlist[]
+  watchedEpisodes WatchedEpisode[]
 }
 
 model Show {
   id         String   @id @default(uuid())
   tvdbId     Int      @unique
   title      String
-  episodes   Episode[]
   createdAt  DateTime @default(now())
+  episodes   Episode[]
+  followers  UserWatchlist[]
 }
 
 model Episode {
-  id           String   @id @default(uuid())
-  showId       String
-  title        String
+  id            String   @id @default(uuid())
+  showId        String
+  title         String
   episodeNumber Int
-  season       Int
-  watchedBy    Watchlist[]
+  season        Int
+  show          Show     @relation(fields: [showId], references: [id])
+  watchedBy     WatchedEpisode[]
 
   @@index([showId])
-
-  show Show @relation(fields: [showId], references: [id])
 }
 
-model Watchlist {
-  id        String   @id @default(uuid())
-  userId    String
-  episodeId String
-  watchedAt DateTime @default(now())
+model UserWatchlist {
+  id       String   @id @default(uuid())
+  userId   String
+  showId   String
+  addedAt  DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id])
+  show Show @relation(fields: [showId], references: [id])
+
+  @@unique([userId, showId])
+}
+
+model WatchedEpisode {
+  id         String   @id @default(uuid())
+  userId     String
+  episodeId  String
+  watchedAt  DateTime @default(now())
 
   user    User    @relation(fields: [userId], references: [id])
   episode Episode @relation(fields: [episodeId], references: [id])

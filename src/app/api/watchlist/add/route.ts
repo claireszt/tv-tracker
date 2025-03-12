@@ -1,0 +1,16 @@
+import { authOptions } from "@/lib/auth";
+import { addShowToWatchlist } from "@/lib/services/watchlistService";
+import { getServerSession } from "next-auth";
+import { NextResponse } from "next/server";
+
+export async function POST(req: Request) {
+  const session = await getServerSession(authOptions);
+
+  if (!session?.user) {
+    return NextResponse.json({ error: "Unauthorized", status: 401 });
+  }
+
+  const result = await addShowToWatchlist(req);
+  if (result?.error) return NextResponse.json({ error: result.error }, { status: result.status });
+  return NextResponse.json({ message: result.message });
+}

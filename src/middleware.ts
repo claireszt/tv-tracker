@@ -5,14 +5,19 @@ export default withAuth({
     signIn: "/auth/signin",
   },
   callbacks: {
-    authorized: ({ token }) => {
-      // ✅ Allow access if user is signed in, otherwise redirect
+    authorized: ({ req, token }) => {
+      // ✅ Allow API requests without redirecting to /auth/signin
+      if (req.nextUrl.pathname.startsWith("/api")) {
+        return true; // Let API requests go through
+      }
+
+      // ✅ Redirect only for protected pages
       return !!token;
     },
   },
 });
 
-// ✅ Ensure that /auth/signin doesn't get stuck in an infinite loop
+// ✅ Ensure that /auth/signin and API requests are not blocked
 export const config = {
-  matcher: ["/((?!auth/signin|auth/signup|public|_next/static|_next/image|favicon.svg).*)"],
+  matcher: ["/((?!auth/signin|auth/signup|public|_next/static|_next/image|favicon.svg|api).*)"],
 };

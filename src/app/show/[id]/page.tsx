@@ -50,6 +50,28 @@ export default function ShowDetailPage() {
     );
   }
 
+  const addToWatchlist = async () => {
+    try {
+      const res = await fetch("/api/watchlist/add", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          tvdbId: showDetail.tvdb_id, // ✅ Use real TVDB ID
+          title: showDetail.title,
+        }),
+      });
+
+      const data = await res.json();
+      if (res.ok) {
+        setWatchlist(true);
+      } else {
+        console.error("❌ Failed to add show to watchlist:", data.error);
+      }
+    } catch (error) {
+      console.error("❌ API Request Error:", error);
+    }
+  };
+
   return (
     <>
       <Navbar />
@@ -58,7 +80,7 @@ export default function ShowDetailPage() {
         <div className="w-full px-6 pb-4 flex items-center justify-center">
           <Button
             text={watchlist ? "Added to Watchlist" : "Add to Watchlist"}
-            onClick={() => setWatchlist(!watchlist)}
+            onClick={() => addToWatchlist()}
           />
         </div>
         {/* Header Section */}
@@ -123,7 +145,7 @@ export default function ShowDetailPage() {
                   >
                     <div className="flex items-center gap-3">
                       <span className="text-sm font-mono opacity-70">{ep.episodeNumber}.</span>
-                      <span className="text-base">{ep.name}</span>
+                      <span className="text-base">{ep.title}</span>
                     </div>
                   </li>
                 ))}

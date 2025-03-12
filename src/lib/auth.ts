@@ -2,7 +2,7 @@ import prisma from "@/lib/prisma";
 import { findUserByEmail } from "@/lib/services/authService";
 import { PrismaAdapter } from "@next-auth/prisma-adapter";
 import bcrypt from "bcryptjs";
-import { NextAuthOptions } from "next-auth";
+import { NextAuthOptions, User } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 
 export const authOptions: NextAuthOptions = {
@@ -14,23 +14,22 @@ export const authOptions: NextAuthOptions = {
         email: { label: "Email", type: "email" },
         password: { label: "Password", type: "password" },
       },
-      async authorize(credentials) {
+      async authorize(credentials): Promise<User | null> {
         if (!credentials?.email || !credentials?.password) {
           throw new Error("Missing email or password");
         }
 
         const user = await findUserByEmail(credentials.email);
-
-        if (!user) {
-          throw new Error("No user found");
-        }
+        if (!user) throw new Error("No user found");
 
         const passwordMatch = await bcrypt.compare(credentials.password, user.password);
-        if (!passwordMatch) {
-          throw new Error("Invalid password");
-        }
+        if (!passwordMatch) throw new Error("Invalid password");
 
-        return user;
+        return {
+          id: user.id,
+          username: user.username,
+          email: user.email,
+        } as User;
       },
     }),
   ],
@@ -38,22 +37,25 @@ export const authOptions: NextAuthOptions = {
     signIn: "/auth/signin",
     error: "/auth/error",
   },
-  session: { strategy: "jwt" },
+  session: {
+    strategy: "jwt",
+    maxAge: 30 * 24 * 60 * 60, // 30 days
+  },
   callbacks: {
-    async jwt({ token, user }: { token: any; user?: any }) {
+    async jwt({ token, user }) {
       if (user) {
         token.id = user.id;
         token.username = user.username;
+        token.email = user.email;
       }
       return token;
     },
-    async session({ session, token }: { session: any; token?: any }) {
-      if (token?.id && token?.username) {
-        session.user = {
-          id: token.id,
-          username: token.username,
-        };
-      }
+    async session({ session, token }) {
+      session.user = {
+        id: token.id as string,
+        username: token.username as string,
+        email: token.email as string,
+      };
       return session;
     },
   },
