@@ -14,5 +14,5 @@ export default withAuth({
 
 // ✅ Ensure that /auth/signin doesn't get stuck in an infinite loop
 export const config = {
-  matcher: ["/((?!auth/signin|auth/signup|public|_next/static|_next/image|favicon.ico).*)"],
+  matcher: ["/((?!auth/signin|auth/signup|public|_next/static|_next/image|favicon.svg).*)"],
 };
