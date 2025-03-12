@@ -1,3 +1,5 @@
+const TVDB_API_URL = process.env.TVDB_API_URL;
+
 let cachedToken: string | null = process.env.TVDB_ACCESS_TOKEN || null;
 let tokenExpiry: number | null = null;
 
@@ -33,4 +35,26 @@ export async function getTVDBToken(): Promise<string | null> {
   tokenExpiry = Date.now() + 30 * 24 * 60 * 60 * 1000; // 30 days
 
   return cachedToken;
+}
+
+export async function searchTVShows(query: string) {
+  if (!query.trim()) return { data: [] };
+
+  try {
+    const token = await getTVDBToken();
+    const response = await fetch(`${TVDB_API_URL}/search?query=${encodeURIComponent(query)}`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+
+    if (!response.ok) {
+      console.error("TVDB Search Error:", await response.json());
+      return { data: [] }; // Return empty array on error
+    }
+
+    const data = await response.json();
+    return { data: data.data?.filter((item: any) => item.type === "series") ?? [] };
+  } catch (error: any) {
+    console.error("Error fetching TVDB search results:", error);
+    return { data: [] };
+  }
 }

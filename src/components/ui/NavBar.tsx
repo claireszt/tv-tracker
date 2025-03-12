@@ -23,7 +23,7 @@ const Navbar = () => {
   };
 
   return (
-    <nav className="fixed top-0 left-0 w-full z-50 bg-light-background dark:bg-dark-background border-b border-light-border dark:border-dark-border">
+    <nav className="fixed top-0 left-0 w-full z-50 bg-light-background dark:bg-dark-background border-b border-light-border dark:border-dark-border py-4">
       <div className="max-w-7xl mx-auto px-4">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
