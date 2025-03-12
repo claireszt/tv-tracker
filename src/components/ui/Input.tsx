@@ -31,7 +31,7 @@ export default function Input({
           className={`w-full p-4 pr-12 text-lg border rounded-lg bg-light-surface dark:bg-dark-surface text-light-text dark:text-dark-text placeholder:text-light-text/60 dark:placeholder:text-dark-text/80 
             border-light-border dark:border-dark-border focus:outline-none focus:ring-2 focus:ring-light-primary/50 dark:focus:ring-dark-primary/50
             ${error ? "border-light-error dark:border-dark-error" : "border-light-border dark:border-dark-border"}`}
-          onChange={onChange}
+          onChange={(e) => onChange}
           {...rest}
         />
         {value && onClear && (
