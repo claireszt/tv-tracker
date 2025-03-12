@@ -12,7 +12,8 @@
     "lint:fix": "eslint . --cache --fix",
     "lint:clear": "rm -rf node_modules/.cache/eslint",
     "test": "echo \"No tests yet\" && exit 0",
-    "postinstall": "prisma generate"
+    "postinstall": "prisma generate",
+    "type-check": "tsc --noEmit"
   },
   "dependencies": {
     "@hookform/resolvers": "^4.1.3",
