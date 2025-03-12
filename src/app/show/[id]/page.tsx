@@ -24,6 +24,19 @@ export default function ShowDetailPage() {
         const res = await fetch(`/api/tvdb/show/${id}`);
         const data = await res.json();
         setShowDetail(data);
+
+        // ✅ Check if the show is in the user's watchlist
+        const watchlistRes = await fetch("/api/watchlist");
+        const watchlistData = await watchlistRes.json();
+
+        if (watchlistRes.ok) {
+          const isInWatchlist = watchlistData.watchlist.some(
+            (entry: any) => entry.show.tvdbId === data.tvdb_id
+          );
+          setWatchlist(isInWatchlist);
+        } else {
+          console.error("❌ Failed to fetch watchlist:", watchlistData.error);
+        }
       } catch (error) {
         console.error("Error fetching show details:", error);
         setShowDetail(null);
@@ -31,6 +44,7 @@ export default function ShowDetailPage() {
         setLoading(false);
       }
     }
+
     if (id) fetchDetails();
   }, [id]);
 
@@ -72,6 +86,27 @@ export default function ShowDetailPage() {
     }
   };
 
+  const removeFromWatchlist = async () => {
+    try {
+      const res = await fetch("/api/watchlist/remove", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          tvdbId: showDetail.tvdb_id, // ✅ Send only TVDB ID
+        }),
+      });
+
+      const data = await res.json();
+      if (res.ok) {
+        setWatchlist(false);
+      } else {
+        console.error("❌ Failed to remove show from watchlist:", data.error);
+      }
+    } catch (error) {
+      console.error("❌ API Request Error:", error);
+    }
+  };
+
   return (
     <>
       <Navbar />
@@ -79,8 +114,8 @@ export default function ShowDetailPage() {
         {/* Add to Watchlist */}
         <div className="w-full px-6 pb-4 flex items-center justify-center">
           <Button
-            text={watchlist ? "Added to Watchlist" : "Add to Watchlist"}
-            onClick={() => addToWatchlist()}
+            text={watchlist ? "Remove from Watchlist" : "Add to Watchlist"}
+            onClick={() => (watchlist ? removeFromWatchlist() : addToWatchlist())}
           />
         </div>
         {/* Header Section */}

@@ -72,3 +72,32 @@ export async function getWatchlist(): Promise<{
     return { error: "Internal server error", status: 500 };
   }
 }
+
+export async function removeShowFromWatchlist(
+  req: Request
+): Promise<{ error?: string; message?: string; status?: number }> {
+  try {
+    const session = await getServerSession(authOptions);
+    if (!session?.user || !session.user.id) {
+      return { error: "Unauthorized", status: 401 };
+    }
+
+    const userId = session.user.id;
+    const body = await req.json();
+
+    console.log("🔹 Removing Show from Watchlist...");
+    await prisma.userWatchlist.deleteMany({
+      where: {
+        userId: userId,
+        show: {
+          tvdbId: body.tvdbId,
+        },
+      },
+    });
+
+    return { message: "Show removed from Watchlist!" };
+  } catch (error) {
+    console.error("❌ Prisma Query Error:", error);
+    return { error: "Internal server error", status: 500 };
+  }
+}
