@@ -1,6 +1,8 @@
-"use client";
+"use client"; // Ensures this runs in the client side
 
+import Button from "@/components/ui/Button";
 import Logo from "@/components/ui/Logo";
+import { signOut } from "next-auth/react";
 
 export default function Dashboard() {
   return (
@@ -13,6 +15,8 @@ export default function Dashboard() {
         <p>This page is under construction for now 🛠️</p>
         <p>Come back later!</p>
       </div>
+      {/* Logout Button */}
+      <Button text="Logout" onClick={() => signOut({ callbackUrl: "/auth/signin" })} />
     </div>
   );
 }

@@ -5,9 +5,9 @@ import { redirect } from "next/navigation";
 export default async function Home() {
   const session = await getServerSession(authOptions);
 
-  if (!session) {
-    redirect("/auth/signin"); // Redirect only if user is NOT logged in
+  if (session) {
+    redirect("/dashboard"); // ✅ Redirect authenticated users to Dashboard
+  } else {
+    redirect("/auth/signin"); // ✅ Redirect unauthenticated users to Sign In
   }
-
-  return <div>Welcome to TV Tracker</div>;
 }
