@@ -24,6 +24,9 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
       lang="en"
       className={`${poppins.variable} ${playfair.variable} h-full bg-light-background dark:bg-dark-background`}
     >
+      <head>
+        <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+      </head>
       <body className="font-poppins">
         <SessionProviderWrapper>
           <Toaster position="top-right" reverseOrder={false} />
