@@ -8,3 +8,4 @@ out/
 dist/
 build/
 .eslintcache
+*.tsbuildinfo
