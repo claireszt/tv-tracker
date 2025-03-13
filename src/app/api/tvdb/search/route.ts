@@ -1,4 +1,5 @@
 import { getTVDBToken } from "@/lib/services/tvdbService";
+import { TVShow } from "@/models/tvShow";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(req: NextRequest) {
@@ -19,7 +20,6 @@ export async function GET(req: NextRequest) {
 
     if (!response.ok) {
       const searchError = await response.json();
-
       return NextResponse.json(
         { message: "Search request failed", error: searchError },
         { status: response.status }
@@ -28,7 +28,17 @@ export async function GET(req: NextRequest) {
 
     const data = await response.json();
 
-    return NextResponse.json(data);
+    // ✅ Convert API response into `TVShow` model
+    const formattedResults: TVShow[] =
+      data.data?.map((item: any) => ({
+        id: item.id,
+        tvdb_id: item.tvdb_id,
+        name: item.name,
+        image: item.image_url || undefined, // ✅ Map `image_url` to `image`
+        year: item.year,
+      })) ?? [];
+
+    return NextResponse.json({ data: formattedResults });
   } catch (error: any) {
     console.error("Error fetching from TVDB API:", error);
 

@@ -1,4 +1,4 @@
-import { getTVDBToken } from "@/lib/services/tvdbService";
+import { getShowDetails } from "@/lib/services/tvdbService";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(
@@ -11,24 +11,16 @@ export async function GET(
       return NextResponse.json({ message: "Show ID is required." }, { status: 400 });
     }
 
-    const TVDB_API_URL = process.env.TVDB_API_URL;
-
-    const token = await getTVDBToken();
-    const response = await fetch(`${TVDB_API_URL}/series/${id}`, {
-      headers: { Authorization: `Bearer ${token}` },
-    });
-
-    if (!response.ok) {
-      return NextResponse.json(
-        { message: "Failed to fetch show details." },
-        { status: response.status }
-      );
+    const showDetail = await getShowDetails(id);
+    if (!showDetail) {
+      return NextResponse.json({ message: "Failed to fetch show details." }, { status: 404 });
     }
 
-    const data = await response.json();
-
-    return NextResponse.json(data);
+    return NextResponse.json(showDetail);
   } catch (error: any) {
-    return NextResponse.json({ message: "Internal Server Error", error }, { status: 500 });
+    return NextResponse.json(
+      { message: "Internal Server Error", error: error.message },
+      { status: 500 }
+    );
   }
 }

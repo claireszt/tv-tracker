@@ -1,5 +1,6 @@
 node_modules/
 .env
+.env.local
 .next/
 prisma/migrations/
 docker-compose.override.yml
@@ -7,3 +8,4 @@ out/
 dist/
 build/
 .eslintcache
+*.tsbuildinfo

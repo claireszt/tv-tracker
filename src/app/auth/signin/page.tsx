@@ -2,6 +2,7 @@
 
 import Button from "@/components/ui/Button";
 import Input from "@/components/ui/Input";
+import Logo from "@/components/ui/Logo";
 import ThemeToggle from "@/components/ui/ThemeToggle";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { signIn } from "next-auth/react";
@@ -44,7 +45,7 @@ export default function SignIn() {
 
       if (response?.ok) {
         toast.success("Login success! Redirecting...");
-        setTimeout(() => router.push("/dashboard"), 500);
+        setTimeout(() => router.push("/watchlist"), 500);
       } else {
         toast.error(`Login failed: ${response?.error || "Unknown error"}`);
       }
@@ -58,6 +59,7 @@ export default function SignIn() {
       {/* Header (Logo + Theme Toggle) */}
       <div className="w-full flex flex-col items-center bg-light-surface dark:bg-dark-surface p-4 relative">
         <ThemeToggle />
+        <Logo />
         <h1 className="mt-2 text-3xl font-bold text-light-text dark:text-dark-text text-center font-heading">
           WELCOME TO <br /> TV TRACKER
         </h1>
