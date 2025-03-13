@@ -7,7 +7,7 @@ import Logo from "./Logo";
 import ThemeToggle from "./ThemeToggle";
 
 const navItems = [
-  { label: "Watchlist", href: "/dashboard" },
+  { label: "Watchlist", href: "/watchlist" },
   { label: "Search", href: "/search" },
   { label: "Profile", href: "/profile" },
 ];

@@ -1,6 +1,6 @@
 export interface TVShow {
   id: string;
-  tvdb_id: string;
+  tvdb_id: number;
   name: string;
   year: string;
   image?: string;
@@ -20,6 +20,7 @@ export interface TVShowDetail {
   firstAired: string;
   lastAired?: string;
   nextAired?: string;
+  watchedPercentage?: number;
 }
 
 export interface Season {
@@ -29,7 +30,7 @@ export interface Season {
 
 export interface Episode {
   id: string;
-  name: string;
+  title: string;
   overview: string;
   airDate: string;
   season: number;

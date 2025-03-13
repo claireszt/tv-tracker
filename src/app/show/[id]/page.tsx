@@ -5,7 +5,7 @@ import Button from "@/components/ui/Button";
 import Navbar from "@/components/ui/NavBar";
 import ShowInfo from "@/components/ui/ShowInfo";
 import StatusPill from "@/components/ui/StatusPill";
-import { TVShowDetail } from "@/models/tvShow";
+import { Episode, TVShowDetail } from "@/models/tvShow";
 import Image from "next/image";
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -16,6 +16,7 @@ export default function ShowDetailPage() {
   const [loading, setLoading] = useState(true);
   const [watchlist, setWatchlist] = useState(false);
   const [activeSeason, setActiveSeason] = useState<number | null>(null);
+  const [watchedEpisodes, setWatchedEpisodes] = useState<string[]>([]);
 
   useEffect(() => {
     async function fetchDetails() {
@@ -24,6 +25,28 @@ export default function ShowDetailPage() {
         const res = await fetch(`/api/tvdb/show/${id}`);
         const data = await res.json();
         setShowDetail(data);
+
+        // ✅ Check if the show is in the watchlist
+        const watchlistRes = await fetch("/api/watchlist");
+        const watchlistData = await watchlistRes.json();
+
+        if (watchlistRes.ok) {
+          const isInWatchlist = watchlistData.watchlist.some(
+            (entry: any) => entry.show.tvdbId === data.tvdb_id
+          );
+          setWatchlist(isInWatchlist);
+
+          if (isInWatchlist) {
+            // ✅ Fetch watched episodes
+            const watchedRes = await fetch("/api/watchlist/watched-episodes");
+            const watchedData = await watchedRes.json();
+            if (watchedRes.ok) {
+              setWatchedEpisodes(watchedData.watchedEpisodes.map((ep: any) => ep.episodeId));
+            }
+          }
+        } else {
+          console.error("❌ Failed to fetch watchlist:", watchlistData.error);
+        }
       } catch (error) {
         console.error("Error fetching show details:", error);
         setShowDetail(null);
@@ -31,8 +54,38 @@ export default function ShowDetailPage() {
         setLoading(false);
       }
     }
+
     if (id) fetchDetails();
   }, [id]);
+
+  const toggleEpisode = async (episode: Episode) => {
+    try {
+      const res = await fetch("/api/watchlist/toggle-episode", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          episodeId: String(episode.id),
+          tvdbId: showDetail?.tvdb_id,
+          title: episode.title,
+          season: episode.season,
+          episodeNumber: episode.episodeNumber,
+        }),
+      });
+
+      const data = await res.json();
+      if (res.ok) {
+        setWatchedEpisodes((prev) =>
+          prev.includes(String(episode.id))
+            ? prev.filter((id) => id !== String(episode.id))
+            : [...prev, String(episode.id)]
+        );
+      } else {
+        console.error("❌ Failed to toggle episode:", data.error);
+      }
+    } catch (error) {
+      console.error("❌ API Request Error:", error);
+    }
+  };
 
   if (loading) {
     return (
@@ -50,6 +103,58 @@ export default function ShowDetailPage() {
     );
   }
 
+  const addToWatchlist = async () => {
+    const imageUrl = showDetail.image || "";
+    console.log("📌 Sending imageUrl to API:", imageUrl); // ✅ Debugging Log
+
+    try {
+      const res = await fetch("/api/watchlist/add", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          tvdbId: showDetail.tvdb_id,
+          title: showDetail.title,
+          imageUrl, // ✅ Ensure this is included
+          totalEpisodes: showDetail.seasons.reduce(
+            (acc, season) => acc + season.episodes.length,
+            0
+          ),
+        }),
+      });
+
+      const data = await res.json();
+      if (res.ok) {
+        console.log("✅ Show added successfully:", data);
+        setWatchlist(true);
+      } else {
+        console.error("❌ Failed to add show to watchlist:", data.error);
+      }
+    } catch (error) {
+      console.error("❌ API Request Error:", error);
+    }
+  };
+
+  const removeFromWatchlist = async () => {
+    try {
+      const res = await fetch("/api/watchlist/remove", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          tvdbId: showDetail.tvdb_id, // ✅ Send only TVDB ID
+        }),
+      });
+
+      const data = await res.json();
+      if (res.ok) {
+        setWatchlist(false);
+      } else {
+        console.error("❌ Failed to remove show from watchlist:", data.error);
+      }
+    } catch (error) {
+      console.error("❌ API Request Error:", error);
+    }
+  };
+
   return (
     <>
       <Navbar />
@@ -57,8 +162,8 @@ export default function ShowDetailPage() {
         {/* Add to Watchlist */}
         <div className="w-full px-6 pb-4 flex items-center justify-center">
           <Button
-            text={watchlist ? "Added to Watchlist" : "Add to Watchlist"}
-            onClick={() => setWatchlist(!watchlist)}
+            text={watchlist ? "Remove from Watchlist" : "Add to Watchlist"}
+            onClick={() => (watchlist ? removeFromWatchlist() : addToWatchlist())}
           />
         </div>
         {/* Header Section */}
@@ -123,8 +228,22 @@ export default function ShowDetailPage() {
                   >
                     <div className="flex items-center gap-3">
                       <span className="text-sm font-mono opacity-70">{ep.episodeNumber}.</span>
-                      <span className="text-base">{ep.name}</span>
+                      <span className="text-base">{ep.title}</span>
                     </div>
+
+                    {/* ✅ Show toggle button only if show is in watchlist */}
+                    {watchlist && (
+                      <button
+                        onClick={() => toggleEpisode(ep)}
+                        className={`px-3 py-1 text-sm font-semibold rounded-md transition ${
+                          watchedEpisodes.includes(String(ep.id))
+                            ? "bg-green-500 text-white"
+                            : "bg-gray-500 text-white"
+                        }`}
+                      >
+                        {watchedEpisodes.includes(String(ep.id)) ? "Watched" : "Mark as Watched"}
+                      </button>
+                    )}
                   </li>
                 ))}
               </ul>

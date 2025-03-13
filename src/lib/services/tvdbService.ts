@@ -96,7 +96,7 @@ export async function getShowDetails(tvdbId: string): Promise<TVShowDetail | nul
       }
       seasonsMap[seasonNumber].push({
         id: ep.id,
-        name: ep.name,
+        title: ep.name,
         overview: ep.overview,
         airDate: ep.aired,
         season: ep.seasonNumber,

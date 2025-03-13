@@ -6,7 +6,7 @@ export default async function Home() {
   const session = await getServerSession(authOptions);
 
   if (session) {
-    redirect("/dashboard"); // ✅ Redirect authenticated users to Dashboard
+    redirect("/watchlist"); // ✅ Redirect authenticated users to Watchlist
   } else {
     redirect("/auth/signin"); // ✅ Redirect unauthenticated users to Sign In
   }
