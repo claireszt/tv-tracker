@@ -4,13 +4,35 @@
 
 ## 🚀 Features
 
+### 📋 Watchlist Management
+
+- ✅ **Add & Remove TV shows** to your watchlist
+- ✅ **Track progress** with a percentage of watched episodes per show
+
+### 🎬 Episode Tracking
+
+- ✅ **Mark episodes as watched/unwatched**
+- ✅ **Toggle episode status** directly from the episode list
+- ✅ **Real-time progress bar updates** based on watched episodes
+
+### 🔍 Search & Show Details
+
+- ✅ **Search TV shows** using TheTVDB API
+- ✅ **View detailed show pages** with synopsis, seasons, and episodes
+
+### 🔐 Authentication & User Management
+
+- ✅ **Sign up and login** with email & password
+- ✅ **Session persistence** via NextAuth
+
 ## 🏗 Tech Stack
 
 ### ⚙️ Backend
 
 - **Next.js** → API routes for server-side logic
 - **Prisma ORM** → Database interactions
-- **PostgreSQL** → Database
+- **PostgreSQL** → Database (Neon for production, Docker for local dev)
+- **NextAuth** → Authentication
 - **Docker** → Containerized development and production environment
 
 ### 🎨 Frontend
@@ -20,40 +42,6 @@
 
 ### 🚀 DevOps & CI/CD
 
+- **Vercel** → Deployment and hosting
 - **GitHub Actions** → Automated testing, building, and deployment
-
-## 🛠 Setup Instructions
-
-### 1️⃣ Clone the Repository
-
-```bash
-git clone https://github.com/your-username/tv-tracker.git
-cd tv-tracker
-```
-
-### 2️⃣ Set Up Environment Variables
-
-Create a `.env` file with your database URL and API key:
-
-```env
-DATABASE_URL="your-database-url"
-NEXT_PUBLIC_TVDB_API_KEY="your-tvdb-api-key"
-```
-
-### 3️⃣ Start the Application
-
-```bash
-docker-compose up --build
-```
-
-### 4️⃣ Apply Prisma Migrations
-
-```bash
-npx prisma migrate dev --name init
-```
-
-Visit `http://localhost:3000` to view the app.
-
-## 📄 License
-
-MIT License © 2025 Claire
+- **Prisma Migrations** → Auto-applies on deploy
