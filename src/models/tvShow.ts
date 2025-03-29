@@ -1,9 +1,10 @@
 export interface TVShow {
   id: string;
-  tvdb_id: number;
-  name: string;
+  tvdbId: number;
+  title: string;
   year: string;
   image?: string;
+  totalEpisodes?: number;
 }
 
 export interface TVShowDetail {
