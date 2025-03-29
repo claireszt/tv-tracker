@@ -87,6 +87,88 @@ export default function ShowDetailPage() {
     }
   };
 
+  const markAllEpisodesInSeason = async (season: number) => {
+    try {
+      const seasonEpisodes =
+        showDetail?.seasons.find((s) => s.seasonNumber === season)?.episodes || [];
+      const episodeIds = seasonEpisodes.map((ep) => String(ep.id));
+
+      // Check if all episodes are already watched
+      const allWatched = episodeIds.every((id) => watchedEpisodes.includes(id));
+
+      // Mark all episodes in the season
+      await Promise.all(
+        episodeIds.map(async (episodeId) => {
+          const episode = seasonEpisodes.find((ep) => String(ep.id) === episodeId);
+          if (episode) {
+            if (allWatched) {
+              // If all are watched, unwatch them
+              if (watchedEpisodes.includes(episodeId)) {
+                await toggleEpisode(episode);
+              }
+            } else {
+              // If not all are watched, watch them
+              if (!watchedEpisodes.includes(episodeId)) {
+                await toggleEpisode(episode);
+              }
+            }
+          }
+        })
+      );
+
+      // Update local state
+      setWatchedEpisodes((prev) => {
+        if (allWatched) {
+          // Remove all episode IDs from this season
+          return prev.filter((id) => !episodeIds.includes(id));
+        } else {
+          // Add all episode IDs from this season
+          return [...new Set([...prev, ...episodeIds])];
+        }
+      });
+    } catch (error) {
+      console.error("❌ Failed to mark all episodes:", error);
+    }
+  };
+
+  const markAllEpisodes = async () => {
+    try {
+      const allEpisodes = showDetail?.seasons.flatMap((s) => s.episodes) || [];
+      const episodeIds = allEpisodes.map((ep) => String(ep.id));
+
+      // Check if all episodes are already watched
+      const allWatched = episodeIds.every((id) => watchedEpisodes.includes(id));
+
+      // Create or remove watched episodes in bulk
+      const res = await fetch("/api/watchlist/toggle-all-episodes", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          tvdbId: showDetail?.tvdb_id,
+          episodeIds: allWatched ? [] : episodeIds, // If all are watched, send empty array to unwatch all
+        }),
+      });
+
+      const data = await res.json();
+      if (res.ok) {
+        // Update local state
+        setWatchedEpisodes((prev) => {
+          if (allWatched) {
+            // Remove all episode IDs
+            return prev.filter((id) => !episodeIds.includes(id));
+          } else {
+            // Add all episode IDs
+            return [...new Set([...prev, ...episodeIds])];
+          }
+        });
+      } else {
+        console.error("❌ Failed to mark all episodes:", data.error);
+      }
+    } catch (error) {
+      console.error("❌ Failed to mark all episodes:", error);
+    }
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center text-lg text-light-text dark:text-dark-text">
@@ -105,7 +187,6 @@ export default function ShowDetailPage() {
 
   const addToWatchlist = async () => {
     const imageUrl = showDetail.image || "";
-    console.log("📌 Sending imageUrl to API:", imageUrl); // ✅ Debugging Log
 
     try {
       const res = await fetch("/api/watchlist/add", {
@@ -114,7 +195,7 @@ export default function ShowDetailPage() {
         body: JSON.stringify({
           tvdbId: showDetail.tvdb_id,
           title: showDetail.title,
-          imageUrl, // ✅ Ensure this is included
+          imageUrl,
           totalEpisodes: showDetail.seasons.reduce(
             (acc, season) => acc + season.episodes.length,
             0
@@ -124,7 +205,6 @@ export default function ShowDetailPage() {
 
       const data = await res.json();
       if (res.ok) {
-        console.log("✅ Show added successfully:", data);
         setWatchlist(true);
       } else {
         console.error("❌ Failed to add show to watchlist:", data.error);
@@ -159,12 +239,32 @@ export default function ShowDetailPage() {
     <>
       <Navbar />
       <div className="min-h-screen px-4 py-6 md:py-12 pt-[100px] md:pt-[120px] bg-light-background dark:bg-dark-background">
-        {/* Add to Watchlist */}
-        <div className="w-full px-6 pb-4 flex items-center justify-center">
+        {/* Add to Watchlist and Mark All Episodes */}
+        <div className="w-full px-6 pb-4 flex flex-col items-center gap-2">
           <Button
             text={watchlist ? "Remove from Watchlist" : "Add to Watchlist"}
             onClick={() => (watchlist ? removeFromWatchlist() : addToWatchlist())}
           />
+          {watchlist && (
+            <Button
+              text={
+                showDetail.seasons
+                  .flatMap((s) => s.episodes)
+                  .every((ep) => watchedEpisodes.includes(String(ep.id)))
+                  ? "Mark All As Unwatched"
+                  : "Mark All As Watched"
+              }
+              onClick={markAllEpisodes}
+              variant="text"
+              icon={
+                showDetail.seasons
+                  .flatMap((s) => s.episodes)
+                  .every((ep) => watchedEpisodes.includes(String(ep.id)))
+                  ? "checkbox"
+                  : "checkbox-checked"
+              }
+            />
+          )}
         </div>
         {/* Header Section */}
         <div className="flex flex-col sm:flex-row items-center sm:items-start gap-6 sm:gap-8">
@@ -219,6 +319,11 @@ export default function ShowDetailPage() {
               onClick={() =>
                 setActiveSeason(activeSeason === season.seasonNumber ? null : season.seasonNumber)
               }
+              onMarkAllEpisodes={() => markAllEpisodesInSeason(season.seasonNumber)}
+              showMarkAllButton={watchlist}
+              allEpisodesWatched={season.episodes.every((ep) =>
+                watchedEpisodes.includes(String(ep.id))
+              )}
             >
               <ul className="mt-2 space-y-2">
                 {season.episodes.map((ep) => (
