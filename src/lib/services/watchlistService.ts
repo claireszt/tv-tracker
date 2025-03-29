@@ -65,7 +65,6 @@ export async function getWatchlist(): Promise<{
 
     const userId = session.user.id;
 
-    console.warn("🔹 Fetching Watchlist for User:", userId);
     const watchlist = await prisma.userWatchlist.findMany({
       where: { userId: userId },
       include: {
