@@ -6,9 +6,11 @@ import Navbar from "@/components/ui/NavBar";
 import ShowInfo from "@/components/ui/ShowInfo";
 import StatusPill from "@/components/ui/StatusPill";
 import { Episode, TVShowDetail } from "@/models/tvShow";
+import { formatRelativeDate, hasEpisodeAired } from "@/utils/date";
 import Image from "next/image";
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
+import { FaCheck, FaClock } from "react-icons/fa";
 
 export default function ShowDetailPage() {
   const { id } = useParams();
@@ -188,6 +190,11 @@ export default function ShowDetailPage() {
   const addToWatchlist = async () => {
     const imageUrl = showDetail.image || "";
 
+    // Calculate total episodes excluding specials
+    const totalEpisodes = showDetail.seasons
+      .filter((season) => season.seasonNumber !== 0)
+      .reduce((acc, season) => acc + season.episodes.length, 0);
+
     try {
       const res = await fetch("/api/watchlist/add", {
         method: "POST",
@@ -196,10 +203,7 @@ export default function ShowDetailPage() {
           tvdbId: showDetail.tvdb_id,
           title: showDetail.title,
           imageUrl,
-          totalEpisodes: showDetail.seasons.reduce(
-            (acc, season) => acc + season.episodes.length,
-            0
-          ),
+          totalEpisodes,
         }),
       });
 
@@ -335,49 +339,77 @@ export default function ShowDetailPage() {
           <h2 className="text-2xl font-heading text-light-text dark:text-dark-text mb-4">
             Seasons
           </h2>
-          {showDetail.seasons.map((season) => (
-            <Accordion
-              key={season.seasonNumber}
-              title={season.seasonNumber === 0 ? "Specials" : `Season ${season.seasonNumber}`}
-              isOpen={activeSeason === season.seasonNumber}
-              onClick={() =>
-                setActiveSeason(activeSeason === season.seasonNumber ? null : season.seasonNumber)
-              }
-              onMarkAllEpisodes={() => markAllEpisodesInSeason(season.seasonNumber)}
-              showMarkAllButton={watchlist}
-              allEpisodesWatched={season.episodes.every((ep) =>
-                watchedEpisodes.includes(String(ep.id))
-              )}
-            >
-              <ul className="mt-2 space-y-2">
-                {season.episodes.map((ep) => (
-                  <li
-                    key={ep.id}
-                    className="flex items-center justify-between p-2 rounded-lg bg-light-surface dark:bg-dark-surface"
-                  >
-                    <div className="flex items-center gap-3">
-                      <span className="text-sm font-mono opacity-70">{ep.episodeNumber}.</span>
-                      <span className="text-base">{ep.title}</span>
-                    </div>
+          {showDetail.seasons
+            .sort((a, b) => {
+              // Put specials (season 0) at the end
+              if (a.seasonNumber === 0) return 1;
+              if (b.seasonNumber === 0) return -1;
+              return a.seasonNumber - b.seasonNumber;
+            })
+            .map((season) => (
+              <Accordion
+                key={season.seasonNumber}
+                title={season.seasonNumber === 0 ? "Specials" : `Season ${season.seasonNumber}`}
+                isOpen={activeSeason === season.seasonNumber}
+                onClick={() =>
+                  setActiveSeason(activeSeason === season.seasonNumber ? null : season.seasonNumber)
+                }
+                onMarkAllEpisodes={() => markAllEpisodesInSeason(season.seasonNumber)}
+                showMarkAllButton={watchlist}
+                allEpisodesWatched={season.episodes.every((ep) =>
+                  watchedEpisodes.includes(String(ep.id))
+                )}
+              >
+                <ul className="mt-2 space-y-1">
+                  {season.episodes.map((ep) => (
+                    <li
+                      key={ep.id}
+                      className="flex items-center justify-between px-3 py-2.5 rounded-lg bg-light-surface/50 dark:bg-dark-surface/50 hover:bg-light-surface dark:hover:bg-dark-surface transition-colors"
+                    >
+                      <div className="flex items-center min-w-0 flex-1 gap-3">
+                        <div className="flex items-center justify-center w-6 h-6 rounded-full bg-light-primary/20 dark:bg-dark-primary/20 shrink-0">
+                          <span className="text-sm font-bold text-light-primary dark:text-dark-primary">
+                            {ep.episodeNumber}
+                          </span>
+                        </div>
+                        <span className="text-base truncate">{ep.title}</span>
+                      </div>
 
-                    {/* ✅ Show toggle button only if show is in watchlist */}
-                    {watchlist && (
-                      <button
-                        onClick={() => toggleEpisode(ep)}
-                        className={`px-3 py-1 text-sm font-semibold rounded-md transition ${
-                          watchedEpisodes.includes(String(ep.id))
-                            ? "bg-green-500 text-white"
-                            : "bg-gray-500 text-white"
-                        }`}
-                      >
-                        {watchedEpisodes.includes(String(ep.id)) ? "Watched" : "Mark as Watched"}
-                      </button>
-                    )}
-                  </li>
-                ))}
-              </ul>
-            </Accordion>
-          ))}
+                      {/* Show air date or watch button */}
+                      {watchlist && (
+                        <div className="flex items-center gap-1.5 shrink-0 ml-4">
+                          {!hasEpisodeAired(ep.airDate) ? (
+                            <span className="flex items-center gap-1.5 text-sm text-light-text/60 dark:text-dark-text/60 min-w-[100px] justify-end">
+                              {formatRelativeDate(ep.airDate)}
+                              <FaClock className="w-3.5 h-3.5" />
+                            </span>
+                          ) : (
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                toggleEpisode(ep);
+                              }}
+                              className={`w-8 h-8 rounded-full flex items-center justify-center transition-all hover:scale-105 ${
+                                watchedEpisodes.includes(String(ep.id))
+                                  ? "bg-green-500/90 hover:bg-green-500"
+                                  : "bg-gray-400/80 hover:bg-gray-400"
+                              }`}
+                              aria-label={
+                                watchedEpisodes.includes(String(ep.id))
+                                  ? "Mark as Unwatched"
+                                  : "Mark as Watched"
+                              }
+                            >
+                              <FaCheck className="w-3.5 h-3.5 text-white" />
+                            </button>
+                          )}
+                        </div>
+                      )}
+                    </li>
+                  ))}
+                </ul>
+              </Accordion>
+            ))}
         </div>
       </div>
     </>
