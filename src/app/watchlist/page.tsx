@@ -1,12 +1,10 @@
 "use client";
-import Button from "@/components/ui/Button";
+import ShowCard from "@/components/ShowCard";
 import Navbar from "@/components/ui/NavBar";
-import Image from "next/image";
-import Link from "next/link";
 import { useEffect, useState } from "react";
 
 export default function Watchlist() {
-  const [watchlist, setWatchlist] = useState<any[]>([]);
+  const [watchlist, setWatchlist] = useState<{ show: any; progress: number }[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -37,6 +35,11 @@ export default function Watchlist() {
     );
   }
 
+  // Organize shows by status
+  const currentlyWatching = watchlist.filter((entry) => entry.progress > 0 && entry.progress < 100);
+  const notStarted = watchlist.filter((entry) => entry.progress === 0);
+  const finished = watchlist.filter((entry) => entry.progress >= 100);
+
   return (
     <>
       <Navbar />
@@ -50,53 +53,64 @@ export default function Watchlist() {
             Your watchlist is empty. Start adding shows!
           </p>
         ) : (
-          <div className="mt-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {watchlist.map((entry) => (
-              <Link key={entry.show.id} href={`/show/${entry.show.tvdbId}`} passHref>
-                <div className="p-4 bg-light-surface dark:bg-dark-surface rounded-lg shadow-md flex flex-col items-center cursor-pointer hover:shadow-lg transition">
-                  {/* ✅ Show Image */}
-                  <div className="relative w-32 h-48 bg-light-border dark:bg-dark-border rounded-lg overflow-hidden shadow-md">
-                    {entry.show.imageUrl ? (
-                      <Image
-                        src={entry.show.imageUrl}
-                        alt={entry.show.title}
-                        fill
-                        sizes="128px"
-                        className="object-cover"
-                      />
-                    ) : (
-                      <div className="w-full h-full bg-gray-300 dark:bg-gray-600 flex items-center justify-center">
-                        <span className="text-sm text-light-text dark:text-dark-text opacity-70">
-                          No Image
-                        </span>
-                      </div>
-                    )}
-                  </div>
-
-                  {/* ✅ Show Title */}
-                  <h2 className="text-lg font-semibold text-light-text dark:text-dark-text mt-3 text-center">
-                    {entry.show.title}
-                  </h2>
-
-                  {/* ✅ Watched Progress Bar */}
-                  <div className="w-full mt-2 bg-gray-300 dark:bg-gray-700 rounded-full h-3">
-                    <div
-                      className="h-3 rounded-full bg-green-500"
-                      style={{ width: `${entry.progress}%` }}
-                    ></div>
-                  </div>
-
-                  {/* ✅ Watched Percentage */}
-                  <p className="text-sm text-light-text dark:text-dark-text opacity-70 mt-1 text-center">
-                    {entry.progress}% Watched ({entry.show.totalEpisodes ?? "Unknown"} episodes)
-                  </p>
-
-                  {/* ✅ View Button */}
-                  <Button text="View" />
+          <>
+            {/* Currently Watching */}
+            {currentlyWatching.length > 0 && (
+              <>
+                <h2 className="text-2xl font-body font-semibold mt-6 flex items-center">
+                  Currently Watching{" "}
+                  <span className="flex items-center justify-center w-6 h-6 rounded-full bg-light-primary/20 dark:bg-dark-primary/20 shrink-0 ml-2">
+                    <span className="text-sm font-bold text-light-primary dark:text-dark-primary">
+                      {currentlyWatching.length}
+                    </span>
+                  </span>
+                </h2>
+                <div className="mt-6">
+                  {currentlyWatching.map((entry) => (
+                    <ShowCard key={entry.show.id} show={entry.show} progress={entry.progress} />
+                  ))}
                 </div>
-              </Link>
-            ))}
-          </div>
+              </>
+            )}
+
+            {/* Not Started */}
+            {notStarted.length > 0 && (
+              <>
+                <h2 className="text-2xl font-body font-semibold mt-6 flex items-center">
+                  Not Started{" "}
+                  <span className="flex items-center justify-center w-6 h-6 rounded-full bg-light-primary/20 dark:bg-dark-primary/20 shrink-0 ml-2">
+                    <span className="text-sm font-bold text-light-primary dark:text-dark-primary">
+                      {notStarted.length}
+                    </span>
+                  </span>
+                </h2>
+                <div className="mt-6">
+                  {notStarted.map((entry) => (
+                    <ShowCard key={entry.show.id} show={entry.show} progress={entry.progress} />
+                  ))}
+                </div>
+              </>
+            )}
+
+            {/* Finished */}
+            {finished.length > 0 && (
+              <>
+                <h2 className="text-2xl font-body font-semibold mt-6 flex items-center">
+                  Finished{" "}
+                  <span className="flex items-center justify-center w-6 h-6 rounded-full bg-light-primary/20 dark:bg-dark-primary/20 shrink-0 ml-2">
+                    <span className="text-sm font-bold text-light-primary dark:text-dark-primary">
+                      {finished.length}
+                    </span>
+                  </span>
+                </h2>
+                <div className="mt-6">
+                  {finished.map((entry) => (
+                    <ShowCard key={entry.show.id} show={entry.show} progress={entry.progress} />
+                  ))}
+                </div>
+              </>
+            )}
+          </>
         )}
       </div>
     </>

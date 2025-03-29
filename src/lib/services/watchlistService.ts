@@ -93,7 +93,8 @@ export async function getWatchlist(): Promise<{
     const watchlistWithProgress = watchlist.map((entry) => {
       const totalEpisodes = entry.show.totalEpisodes ?? entry.show.episodes.length; // ✅ Ensure we have an episode count
       const watchedCount = entry.show.episodes.filter((ep) => watchedEpisodeIds.has(ep.id)).length;
-      const progress = totalEpisodes > 0 ? Math.round((watchedCount / totalEpisodes) * 100) : 0;
+      const progress =
+        totalEpisodes > 0 ? Math.min(Math.round((watchedCount / totalEpisodes) * 100), 100) : 0;
 
       return {
         ...entry,

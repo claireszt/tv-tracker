@@ -28,14 +28,14 @@ const SearchResults: React.FC<SearchResultsProps> = ({ results, loading, query }
       {results.map((show) => (
         <li
           key={show.id}
-          onClick={() => router.push(`/show/${show.tvdb_id}`)}
+          onClick={() => router.push(`/show/${show.tvdbId}`)}
           className="p-4 rounded-md flex items-center gap-4 hover:bg-light-border dark:hover:bg-dark-border cursor-pointer transition-all text-lg text-light-text dark:text-dark-text"
         >
           {show.image ? (
             <div className="relative w-12 h-12 flex items-center justify-center">
               <Image
                 src={show.image}
-                alt={show.name}
+                alt={show.title}
                 width={100} // Intrinsic width (used for aspect ratio)
                 height={150} // Intrinsic height (used for aspect ratio)
                 style={{
@@ -48,7 +48,7 @@ const SearchResults: React.FC<SearchResultsProps> = ({ results, loading, query }
             <div className="w-12 h-12 bg-light-border dark:bg-dark-border rounded-md" />
           )}
           <div className="flex flex-col gap-1">
-            <span>{show.name}</span>
+            <span>{show.title}</span>
             <span className="text-xs text-light-text dark:text-dark-text opacity-70">
               {show.year}
             </span>
