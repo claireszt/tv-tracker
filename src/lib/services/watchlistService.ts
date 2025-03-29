@@ -14,19 +14,9 @@ export async function addShowToWatchlist(
     const userId = session.user.id;
     const body = await req.json();
 
-    console.log("📌 Received API Data:", body); // ✅ Debugging Log
-
     if (!body.tvdbId || !body.title || typeof body.totalEpisodes !== "number") {
       return { error: "Invalid data: Missing required fields", status: 400 };
     }
-
-    // ✅ Log values before inserting into the database
-    console.log(`📌 Inserting Show:
-      tvdbId: ${body.tvdbId}
-      title: ${body.title}
-      totalEpisodes: ${body.totalEpisodes}
-      imageUrl: ${body.imageUrl}
-    `);
 
     await prisma.$transaction(async (tx) => {
       const show = await tx.show.upsert({
@@ -75,7 +65,7 @@ export async function getWatchlist(): Promise<{
 
     const userId = session.user.id;
 
-    console.log("🔹 Fetching Watchlist for User:", userId);
+    console.warn("🔹 Fetching Watchlist for User:", userId);
     const watchlist = await prisma.userWatchlist.findMany({
       where: { userId: userId },
       include: {
@@ -116,8 +106,6 @@ export async function getWatchlist(): Promise<{
         },
       };
     });
-
-    console.log("✅ Watchlist Fetched:", watchlistWithProgress);
 
     return { watchlist: watchlistWithProgress };
   } catch (error) {
@@ -241,6 +229,217 @@ export async function getWatchedEpisodes(): Promise<{
     return { watchedEpisodes };
   } catch (error) {
     console.error("❌ Prisma Query Error:", error);
+    return { error: "Internal server error", status: 500 };
+  }
+}
+
+interface WatchAllEpisodesRequest {
+  showId: string;
+  userId: string;
+}
+
+interface WatchSeasonEpisodesRequest {
+  seasonNumber: number;
+  userId: string;
+}
+
+interface ToggleAllEpisodesRequest {
+  tvdbId: string;
+  episodeIds: string[];
+  userId: string;
+}
+
+export async function toggleAllEpisodes(
+  req: Request
+): Promise<{ error?: string; message?: string; status?: number }> {
+  try {
+    const session = await getServerSession(authOptions);
+    if (!session?.user || !session.user.id) {
+      return { error: "Unauthorized", status: 401 };
+    }
+
+    const userId = session.user.id;
+    const body = await req.json();
+
+    if (!body.tvdbId || !Array.isArray(body.episodeIds)) {
+      return { error: "Invalid data", status: 400 };
+    }
+
+    const request: ToggleAllEpisodesRequest = {
+      tvdbId: body.tvdbId,
+      episodeIds: body.episodeIds,
+      userId,
+    };
+
+    return await prisma.$transaction(async (tx) => {
+      const show = await tx.show.findUnique({
+        where: { tvdbId: parseInt(request.tvdbId) },
+      });
+
+      if (!show) {
+        return { error: "Show not found in watchlist", status: 400 };
+      }
+
+      // If episodeIds is empty, remove all watched episodes for this show
+      if (request.episodeIds.length === 0) {
+        await tx.watchedEpisode.deleteMany({
+          where: {
+            userId: request.userId,
+            episode: {
+              showId: show.id,
+            },
+          },
+        });
+        return { message: "All episodes marked as unwatched" };
+      }
+
+      // First, ensure all episodes exist in the database
+      const existingEpisodes = await tx.episode.findMany({
+        where: {
+          id: {
+            in: request.episodeIds,
+          },
+        },
+      });
+
+      const existingEpisodeIds = new Set(existingEpisodes.map((ep: { id: string }) => ep.id));
+
+      // Create missing episodes
+      const missingEpisodes = request.episodeIds.filter(
+        (id: string) => !existingEpisodeIds.has(id)
+      );
+      if (missingEpisodes.length > 0) {
+        await tx.episode.createMany({
+          data: missingEpisodes.map((episodeId: string) => ({
+            id: episodeId,
+            showId: show.id,
+            title: `Episode ${episodeId}`, // Placeholder title
+            season: 0, // Placeholder season
+            episodeNumber: 0, // Placeholder episode number
+          })),
+          skipDuplicates: true,
+        });
+      }
+
+      // Now create watched episodes
+      await tx.watchedEpisode.createMany({
+        data: request.episodeIds.map((episodeId: string) => ({
+          userId: request.userId,
+          episodeId: episodeId,
+        })),
+        skipDuplicates: true,
+      });
+
+      return { message: "All episodes marked as watched" };
+    });
+  } catch (error) {
+    console.error("❌ Prisma Transaction Error:", error);
+    return { error: "Internal server error", status: 500 };
+  }
+}
+
+export async function watchAllEpisodes(
+  req: Request
+): Promise<{ error?: string; message?: string; status?: number }> {
+  try {
+    const session = await getServerSession(authOptions);
+    if (!session?.user || !session.user.id) {
+      return { error: "Unauthorized", status: 401 };
+    }
+
+    const userId = session.user.id;
+    const body = await req.json();
+
+    if (!body.tvdbId) {
+      return { error: "Invalid show ID", status: 400 };
+    }
+
+    return await prisma.$transaction(async (tx) => {
+      // First, ensure the show exists in the user's watchlist
+      const show = await tx.show.findUnique({
+        where: { tvdbId: body.tvdbId },
+      });
+
+      if (!show) {
+        return { error: "Show not found in watchlist", status: 400 };
+      }
+
+      // Get all episodes for the show
+      const episodes = await tx.episode.findMany({
+        where: {
+          showId: show.id,
+        },
+        select: {
+          id: true,
+        },
+      });
+
+      if (episodes.length === 0) {
+        return { error: "No episodes found for this show", status: 400 };
+      }
+
+      // Mark all episodes as watched
+      await tx.watchedEpisode.createMany({
+        data: episodes.map((episode) => ({
+          episodeId: episode.id,
+          userId: userId,
+        })),
+        skipDuplicates: true, // Skip if episode is already marked as watched
+      });
+
+      return { message: "All episodes marked as watched" };
+    });
+  } catch (error) {
+    console.error("❌ Prisma Transaction Error:", error);
+    return { error: "Internal server error", status: 500 };
+  }
+}
+
+export async function watchSeasonEpisodes(
+  req: Request
+): Promise<{ error?: string; message?: string; status?: number }> {
+  try {
+    const session = await getServerSession(authOptions);
+    if (!session?.user || !session.user.id) {
+      return { error: "Unauthorized", status: 401 };
+    }
+
+    const userId = session.user.id;
+    const body = await req.json();
+
+    if (!body.seasonNumber || isNaN(Number(body.seasonNumber))) {
+      return { error: "Invalid season number", status: 400 };
+    }
+
+    const request: WatchSeasonEpisodesRequest = {
+      seasonNumber: Number(body.seasonNumber),
+      userId,
+    };
+
+    return await prisma.$transaction(async (tx) => {
+      // Get all episodes for the season
+      const episodes = await tx.episode.findMany({
+        where: {
+          season: request.seasonNumber,
+        },
+        select: {
+          id: true,
+        },
+      });
+
+      // Mark all episodes as watched
+      await tx.watchedEpisode.createMany({
+        data: episodes.map((episode) => ({
+          episodeId: episode.id,
+          userId: request.userId,
+        })),
+        skipDuplicates: true,
+      });
+
+      return { message: "All season episodes marked as watched" };
+    });
+  } catch (error) {
+    console.error("❌ Prisma Transaction Error:", error);
     return { error: "Internal server error", status: 500 };
   }
 }

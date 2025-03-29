@@ -9,3 +9,4 @@ dist/
 build/
 .eslintcache
 *.tsbuildinfo
+.cursorrules
