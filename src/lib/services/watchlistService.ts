@@ -231,12 +231,6 @@ export async function getWatchedEpisodes(): Promise<{
     return { error: "Internal server error", status: 500 };
   }
 }
-
-interface WatchAllEpisodesRequest {
-  showId: string;
-  userId: string;
-}
-
 interface WatchSeasonEpisodesRequest {
   seasonNumber: number;
   userId: string;

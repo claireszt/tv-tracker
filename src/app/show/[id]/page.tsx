@@ -314,9 +314,6 @@ export default function ShowDetailPage() {
             <h1 className="text-3xl font-heading font-semibold text-light-text dark:text-dark-text">
               {showDetail.title}
             </h1>
-            <p className="text-base text-light-text dark:text-dark-text opacity-70">
-              {showDetail.year}
-            </p>
             <div className="flex justify-center sm:justify-start">
               <StatusPill status={showDetail.status} />
             </div>

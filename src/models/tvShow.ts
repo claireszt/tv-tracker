@@ -11,7 +11,6 @@ export interface TVShowDetail {
   tvdb_id: number;
   title: string;
   synopsis: string;
-  year: string;
   image?: string;
   seasons: Season[];
   status: string;
