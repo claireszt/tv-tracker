@@ -22,6 +22,7 @@ services:
       DATABASE_URL: ${DATABASE_URL} # ✅ Uses environment variables
     ports:
       - "3000:3000"
+      - "5555:5555"
     command: >
       sh -c "npx prisma generate &&
              npx prisma migrate deploy &&

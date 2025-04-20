@@ -5,13 +5,11 @@ import Input from "@/components/ui/Input";
 import Logo from "@/components/ui/Logo";
 import ThemeToggle from "@/components/ui/ThemeToggle";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import toast from "react-hot-toast";
 import * as z from "zod";
 
-// Define Validation Schema
 const signUpSchema = z
   .object({
     username: z.string().min(3, "Username must be at least 3 characters"),
@@ -26,7 +24,8 @@ const signUpSchema = z
 
 export default function SignUp() {
   const [loading, setLoading] = useState(false);
-  const router = useRouter();
+  const [emailSent, setEmailSent] = useState(false);
+  const [email, setEmail] = useState("");
 
   const {
     register,
@@ -35,7 +34,6 @@ export default function SignUp() {
   } = useForm({
     resolver: zodResolver(signUpSchema),
     mode: "onBlur",
-    criteriaMode: "all",
   });
 
   const onSubmit = async (data: any) => {
@@ -50,19 +48,36 @@ export default function SignUp() {
       const result = await response.json();
 
       if (response.ok) {
-        toast.success("Account created successfully! Redirecting...");
-        setTimeout(() => router.push("/auth/signin"), 2000);
+        setEmailSent(true);
+        setEmail(data.email);
+        toast.success("Verification email sent!");
       } else {
         toast.error(result.error || "Sign-up failed");
       }
+    } catch {
+      toast.error("Something went wrong.");
     } finally {
       setLoading(false);
     }
   };
 
+  if (emailSent) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center px-4 bg-light-background dark:bg-dark-background text-center">
+        <Logo />
+        <h1 className="text-2xl font-bold mt-6 text-light-text dark:text-dark-text">
+          Almost there!
+        </h1>
+        <p className="text-sm text-light-text dark:text-dark-text opacity-80 mt-2 max-w-sm">
+          We sent a verification email to <strong>{email}</strong>. Please check your inbox to
+          activate your account.
+        </p>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen flex flex-col bg-light-background dark:bg-dark-background">
-      {/* Header (Logo + Theme Toggle) */}
       <div className="w-full flex flex-col items-center bg-light-surface dark:bg-dark-surface p-6 relative">
         <ThemeToggle />
         <Logo />
@@ -71,20 +86,8 @@ export default function SignUp() {
         </h1>
       </div>
 
-      {/* Main Content - Centered Form */}
       <div className="flex-1 flex items-center justify-center p-6">
         <div className="w-full max-w-md bg-light-background dark:bg-dark-surface p-4">
-          {/* Tabs */}
-          <div className="flex justify-center pb-2">
-            <a href="/auth/signin" className="text-light-text dark:text-dark-text opacity-70">
-              SIGN IN
-            </a>
-            <span className="ml-4 text-light-text dark:text-dark-text font-bold border-b-2 border-light-secondary dark:border-dark-secondary pb-1">
-              SIGN UP
-            </span>
-          </div>
-
-          {/* Form */}
           <form onSubmit={handleSubmit(onSubmit)} className="mt-6 space-y-4" noValidate>
             <Input
               label="Username"
@@ -119,24 +122,12 @@ export default function SignUp() {
             />
 
             <div className="flex justify-center">
-              <Button text={loading ? "Loading..." : "SUBMIT"} disabled={loading || !isValid} />
+              <Button text={loading ? "Sending..." : "SUBMIT"} disabled={loading || !isValid} />
             </div>
           </form>
-
-          {/* Sign-up Link */}
-          <p className="mt-6 text-center text-sm text-light-text dark:text-dark-text">
-            Already have an account?{" "}
-            <a
-              href="/auth/signin"
-              className="text-light-secondary dark:text-dark-secondary font-bold"
-            >
-              Sign up!
-            </a>
-          </p>
         </div>
       </div>
 
-      {/* Footer - Fixed at Bottom */}
       <div className="w-full py-4 text-center text-xs text-light-text dark:text-dark-text opacity-70 bg-light-surface dark:bg-dark-surface">
         © Claire Sztejnberg | 2025
       </div>

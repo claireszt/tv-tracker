@@ -1,23 +1,37 @@
 import { withAuth } from "next-auth/middleware";
+import { NextResponse } from "next/server";
 
-export default withAuth({
-  pages: {
-    signIn: "/auth/signin",
+export default withAuth(
+  function middleware(req) {
+    const token = req.nextauth.token;
+
+    const publicPaths = [
+      "/auth/signup",
+      "/auth/complete-profile",
+      "/auth/start",
+      "/auth/login",
+      "/auth/verify",
+    ];
+
+    if (publicPaths.includes(req.nextUrl.pathname)) return NextResponse.next();
+
+    if (token && !token.username && !req.nextUrl.pathname.includes("/auth/complete-profile")) {
+      const url = req.nextUrl.clone();
+      url.pathname = "/auth/complete-profile";
+      return NextResponse.redirect(url);
+    }
+
+    return NextResponse.next();
   },
-  callbacks: {
-    authorized: ({ req, token }) => {
-      // ✅ Allow API requests without redirecting to /auth/signin
-      if (req.nextUrl.pathname.startsWith("/api")) {
-        return true; // Let API requests go through
-      }
-
-      // ✅ Redirect only for protected pages
-      return !!token;
+  {
+    callbacks: {
+      authorized: ({ token }) => !!token,
     },
-  },
-});
+  }
+);
 
-// ✅ Ensure that /auth/signin and API requests are not blocked
 export const config = {
-  matcher: ["/((?!auth/signin|auth/signup|public|_next/static|_next/image|favicon.svg|api).*)"],
+  matcher: [
+    "/((?!api|_next/static|_next/image|favicon.ico|auth/error|auth/start|auth/login|auth/signup|auth/complete-profile|auth/verify).*)",
+  ],
 };
