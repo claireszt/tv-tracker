@@ -5,7 +5,13 @@ export default withAuth(
   function middleware(req) {
     const token = req.nextauth.token;
 
-    const publicPaths = ["/auth/signup", "/auth/complete-profile", "/auth/start", "/auth/login"];
+    const publicPaths = [
+      "/auth/signup",
+      "/auth/complete-profile",
+      "/auth/start",
+      "/auth/login",
+      "/auth/verify",
+    ];
 
     if (publicPaths.includes(req.nextUrl.pathname)) return NextResponse.next();
 
@@ -26,6 +32,6 @@ export default withAuth(
 
 export const config = {
   matcher: [
-    "/((?!api|_next/static|_next/image|favicon.ico|auth/error|auth/start|auth/login|auth/signup|auth/complete-profile).*)",
+    "/((?!api|_next/static|_next/image|favicon.ico|auth/error|auth/start|auth/login|auth/signup|auth/complete-profile|auth/verify).*)",
   ],
 };
