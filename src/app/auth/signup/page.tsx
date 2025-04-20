@@ -5,7 +5,6 @@ import Input from "@/components/ui/Input";
 import Logo from "@/components/ui/Logo";
 import ThemeToggle from "@/components/ui/ThemeToggle";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import toast from "react-hot-toast";
@@ -27,12 +26,10 @@ export default function SignUp() {
   const [loading, setLoading] = useState(false);
   const [emailSent, setEmailSent] = useState(false);
   const [email, setEmail] = useState("");
-  const router = useRouter();
 
   const {
     register,
     handleSubmit,
-    watch,
     formState: { errors, isValid },
   } = useForm({
     resolver: zodResolver(signUpSchema),

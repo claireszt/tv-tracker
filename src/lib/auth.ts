@@ -19,15 +19,19 @@ export const authOptions: NextAuthOptions = {
         email: { label: "Email or Username", type: "text" },
         password: { label: "Password", type: "password" },
       },
-      async authorize(credentials): Promise<User | null> {
+      authorize: async (credentials): Promise<User | null> => {
         if (!credentials?.email || !credentials?.password) {
           throw new Error("Missing email or password");
         }
 
         const user = await findUserByEmail(credentials.email);
 
-        if (!user || !user.password) {
+        if (!user) {
           throw new Error("Invalid credentials");
+        }
+
+        if (!user.password) {
+          throw new Error("no-password"); // 🔥 Custom error the frontend can check
         }
 
         const isValid = await bcrypt.compare(credentials.password, user.password);
@@ -38,8 +42,8 @@ export const authOptions: NextAuthOptions = {
         return {
           id: user.id,
           email: user.email,
-          username: user.username,
-        } as User;
+          username: user.username ?? "",
+        };
       },
     }),
   ],

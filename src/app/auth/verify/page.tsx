@@ -42,9 +42,10 @@ export default function VerifyPage() {
           setStatus("error");
           toast.error(result.error || "Verification failed");
         }
-      } catch (err) {
+      } catch (err: any) {
         setStatus("error");
         toast.error("Something went wrong");
+        console.error(err.message);
       }
     };
 

@@ -23,7 +23,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "User already exists" }, { status: 400 });
     }
 
-    const newUser = await createUser(username, email, password);
+    await createUser(username, email, password);
 
     const { token, expires } = generateVerificationToken();
     await saveVerificationToken(email, token, expires);

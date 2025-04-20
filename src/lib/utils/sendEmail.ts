@@ -24,8 +24,6 @@ export default async function sendEmail({ to, subject, html }: EmailParams) {
       subject,
       html,
     });
-
-    console.log(`📨 Verification email sent to ${to}`);
   } catch (error) {
     console.error("❌ Error sending email:", error);
     throw new Error("Failed to send verification email");
