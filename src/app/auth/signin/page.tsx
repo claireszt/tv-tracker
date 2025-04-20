@@ -6,22 +6,20 @@ import Logo from "@/components/ui/Logo";
 import ThemeToggle from "@/components/ui/ThemeToggle";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { signIn } from "next-auth/react";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import toast from "react-hot-toast";
+import { FcGoogle } from "react-icons/fc";
 import * as z from "zod";
 
-// Define Validation Schema
 const signInSchema = z.object({
-  email: z.string().email("Invalid email address"),
+  email: z.string().min(1, "Email is required"),
   password: z.string().min(6, "Password must be at least 6 characters"),
 });
 
 export default function SignIn() {
   const [loading, setLoading] = useState(false);
-
   const {
     register,
     handleSubmit,
@@ -29,7 +27,6 @@ export default function SignIn() {
   } = useForm({
     resolver: zodResolver(signInSchema),
     mode: "onBlur",
-    criteriaMode: "all",
   });
 
   const router = useRouter();
@@ -37,17 +34,17 @@ export default function SignIn() {
   const onSubmit = async (data: any) => {
     setLoading(true);
     try {
-      const response = await signIn("credentials", {
+      const res = await signIn("credentials", {
         email: data.email,
         password: data.password,
-        redirect: false, // Prevents auto-redirect
+        redirect: false,
       });
 
-      if (response?.ok) {
-        toast.success("Login success! Redirecting...");
+      if (res?.ok) {
+        toast.success("Welcome back!");
         setTimeout(() => router.push("/watchlist"), 500);
       } else {
-        toast.error(`Login failed: ${response?.error || "Unknown error"}`);
+        toast.error("Invalid credentials");
       }
     } finally {
       setLoading(false);
@@ -56,75 +53,73 @@ export default function SignIn() {
 
   return (
     <div className="min-h-screen flex flex-col bg-light-background dark:bg-dark-background">
-      {/* Header (Logo + Theme Toggle) */}
+      {/* Header */}
       <div className="w-full flex flex-col items-center bg-light-surface dark:bg-dark-surface p-4 relative">
         <ThemeToggle />
         <Logo />
         <h1 className="mt-2 text-3xl font-bold text-light-text dark:text-dark-text text-center font-heading">
-          WELCOME TO <br /> TV TRACKER
+          Welcome to <br /> TV Tracker
         </h1>
       </div>
 
-      {/* Main Content - Centered Form */}
+      {/* Main Content */}
       <div className="flex-1 flex items-center justify-center p-6">
-        <div className="w-full max-w-md bg-light-background dark:bg-dark-surface p-6">
-          {/* Tabs */}
-          <div className="flex justify-center pb-2">
-            <span className="mr-4 text-light-text dark:text-dark-text font-bold border-b-2 border-light-secondary dark:border-dark-secondary pb-1">
-              SIGN IN
-            </span>
-            <Link href="/auth/signup" className="text-light-text dark:text-dark-text opacity-70">
-              SIGN UP
-            </Link>
-          </div>
-
-          {/* Sign-in Form */}
-          <form onSubmit={handleSubmit(onSubmit)} className="mt-6 space-y-4" noValidate>
+        <div className="w-full max-w-md bg-light-background dark:bg-dark-surface p-6 rounded-lg shadow-md">
+          {/* Sign In Form */}
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
             <Input
-              label="Email"
-              type="email"
+              label="Email or Username"
               placeholder="jane@doe.com"
+              type="text"
               {...register("email")}
               error={errors.email?.message}
             />
 
             <Input
               label="Password"
+              placeholder="••••••••"
               type="password"
-              placeholder="******"
               {...register("password")}
               error={errors.password?.message}
             />
 
-            {/* Forgot Password */}
             <div className="flex justify-end">
-              <a href="#" className="text-light-accent dark:text-dark-accent text-sm">
+              <a href="#" className="text-sm text-light-accent dark:text-dark-accent">
                 Forgot password?
               </a>
             </div>
 
-            <div className="flex justify-center">
-              <Button text={loading ? "Loading..." : "SUBMIT"} disabled={loading || !isValid} />
-            </div>
+            <Button text={loading ? "Loading..." : "Sign In"} disabled={!isValid || loading} />
           </form>
 
-          {/* Sign-up Link */}
-          <p className="mt-6 text-center text-sm text-light-text dark:text-dark-text">
-            Don’t have an account?{" "}
-            <a
-              href="/auth/signup"
-              className="text-light-secondary dark:text-dark-secondary font-bold"
-            >
-              Sign up!
-            </a>
-          </p>
+          {/* Divider */}
+          <div className="flex items-center justify-center my-6">
+            <div className="h-px w-full bg-light-border dark:bg-dark-border" />
+            <span className="px-2 text-xs text-light-text dark:text-dark-text opacity-70">OR</span>
+            <div className="h-px w-full bg-light-border dark:bg-dark-border" />
+          </div>
+
+          {/* Google Sign-In */}
+          <button
+            onClick={() => signIn("google", { callbackUrl: "/watchlist" })}
+            disabled={loading}
+            className="w-full flex items-center justify-center gap-2 border border-light-border dark:border-dark-border rounded-lg py-2 px-4 text-sm font-medium text-light-text dark:text-dark-text hover:bg-light-surface dark:hover:bg-dark-surface transition"
+          >
+            <FcGoogle className="text-xl" />
+            Continue with Google
+          </button>
+
+          {/* Magic Link Placeholder */}
+          <div className="mt-4 w-full text-center text-sm text-light-text dark:text-dark-text opacity-60">
+            ✉️ Magic link login — <span className="italic">coming soon</span>
+          </div>
         </div>
       </div>
 
-      {/* Footer - Fixed at Bottom */}
-      <div className="w-full py-4 text-center text-xs text-light-text dark:text-dark-text opacity-70 bg-light-surface dark:bg-dark-surface">
+      {/* Footer */}
+      <footer className="w-full py-4 text-center text-xs text-light-text dark:text-dark-text opacity-70 bg-light-surface dark:bg-dark-surface">
         © Claire Sztejnberg | 2025
-      </div>
+      </footer>
     </div>
   );
 }
