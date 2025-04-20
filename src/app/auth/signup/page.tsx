@@ -51,7 +51,9 @@ export default function SignUp() {
 
       if (response.ok) {
         toast.success("Account created successfully! Redirecting...");
-        setTimeout(() => router.push("/auth/signin"), 2000);
+        setTimeout(() => {
+          router.push(`/auth/login?email=${encodeURIComponent(data.email)}`);
+        }, 1000);
       } else {
         toast.error(result.error || "Sign-up failed");
       }
@@ -122,17 +124,6 @@ export default function SignUp() {
               <Button text={loading ? "Loading..." : "SUBMIT"} disabled={loading || !isValid} />
             </div>
           </form>
-
-          {/* Sign-up Link */}
-          <p className="mt-6 text-center text-sm text-light-text dark:text-dark-text">
-            Already have an account?{" "}
-            <a
-              href="/auth/signin"
-              className="text-light-secondary dark:text-dark-secondary font-bold"
-            >
-              Sign up!
-            </a>
-          </p>
         </div>
       </div>
 

@@ -5,9 +5,6 @@ import { redirect } from "next/navigation";
 export default async function Home() {
   const session = await getServerSession(authOptions);
 
-  if (session) {
-    redirect("/watchlist"); // ✅ Redirect authenticated users to Watchlist
-  } else {
-    redirect("/auth/signin"); // ✅ Redirect unauthenticated users to Sign In
-  }
+  if (session) redirect("/watchlist");
+  else redirect("/auth/start");
 }
