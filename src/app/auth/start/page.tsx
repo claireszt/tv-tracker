@@ -85,7 +85,7 @@ export default function StartPage() {
       </form>
       <div className="mt-6">
         <button
-          onClick={() => signIn("google")}
+          onClick={() => signIn("google", { callbackUrl: "/watchlist" })}
           className="flex items-center justify-center gap-2 w-full border border-light-border dark:border-dark-border rounded-lg py-2 px-4 text-sm font-medium text-light-text dark:text-dark-text hover:bg-light-surface dark:hover:bg-dark-surface transition"
         >
           <FcGoogle className="text-xl" />
