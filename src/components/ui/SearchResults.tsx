@@ -35,11 +35,11 @@ const SearchResults: React.FC<SearchResultsProps> = ({ results, loading, query }
             <div className="relative w-12 h-12 flex items-center justify-center">
               <Image
                 src={show.image}
-                alt={show.title}
-                width={100} // Intrinsic width (used for aspect ratio)
-                height={150} // Intrinsic height (used for aspect ratio)
+                alt={show.title || "TV show image"}
+                width={100}
+                height={150}
                 style={{
-                  maxWidth: "48px", // Limit image width to container's width
+                  maxWidth: "48px",
                   objectFit: "contain",
                 }}
               />

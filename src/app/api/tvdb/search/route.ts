@@ -28,17 +28,17 @@ export async function GET(req: NextRequest) {
 
     const data = await response.json();
 
-    // ✅ Convert API response into `TVShow` model
-    const formattedResults: TVShow[] =
-      data.data?.map((item: any) => ({
-        id: item.id,
-        tvdb_id: item.tvdb_id,
-        name: item.name,
-        image: item.image_url || undefined, // ✅ Map `image_url` to `image`
-        year: item.year,
+    const shows: TVShow[] =
+      data.data.map((show: any) => ({
+        id: show.id,
+        tvdbId: show.tvdb_id,
+        title: show.name,
+        year: show.year ?? "",
+        image: show.image_url ?? "",
+        totalEpisodes: show.episodes ?? 0,
       })) ?? [];
 
-    return NextResponse.json({ data: formattedResults });
+    return NextResponse.json({ data: shows });
   } catch (error: any) {
     console.error("Error fetching from TVDB API:", error);
 

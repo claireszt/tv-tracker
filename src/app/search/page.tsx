@@ -6,7 +6,7 @@ import SearchResults from "@/components/ui/SearchResults";
 import { useEffect, useState } from "react";
 import { useDebounce } from "use-debounce";
 
-const searchCache: Record<string, any[]> = {}; // ✅ Local cache for searches
+const searchCache: Record<string, any[]> = {};
 
 async function fetchSearchResults(query: string, controller: AbortController) {
   if (!query.trim()) return { data: [] };
@@ -42,7 +42,7 @@ export default function SearchPage() {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    const controller = new AbortController(); // ✅ Create an AbortController
+    const controller = new AbortController();
 
     async function getResults() {
       setLoading(true);
@@ -54,7 +54,7 @@ export default function SearchPage() {
     if (debouncedQuery) getResults();
     else setResults([]);
 
-    return () => controller.abort(); // ✅ Cancel previous request when effect reruns
+    return () => controller.abort();
   }, [debouncedQuery]);
 
   return (
@@ -84,7 +84,7 @@ export default function SearchPage() {
           </div>
         )}
 
-        <SearchResults results={results} loading={loading} query={query} />
+        <SearchResults results={results} loading={loading} query={debouncedQuery} />
       </div>
     </>
   );
