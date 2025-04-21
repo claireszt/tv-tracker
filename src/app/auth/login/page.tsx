@@ -89,10 +89,16 @@ export default function SignIn() {
 
       {/* Main */}
       <div className="flex-1 flex items-center justify-center p-6">
-        <div className="w-full max-w-md bg-light-background dark:bg-dark-surface p-6 rounded-lg shadow-md space-y-4">
-          <p className="text-center text-sm text-light-text dark:text-dark-text">
+        <div className="text-center text-sm text-light-text dark:text-dark-text space-y-1">
+          <p>
             Sign in as <strong>{email}</strong>
           </p>
+          <button
+            onClick={() => router.push("/auth/start")}
+            className="text-xs underline text-light-accent dark:text-dark-accent hover:text-opacity-80 transition"
+          >
+            Not you? Go back to start
+          </button>
 
           {showPassword && (
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">

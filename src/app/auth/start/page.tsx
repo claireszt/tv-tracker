@@ -10,7 +10,7 @@ import { z } from "zod";
 import Button from "@/components/ui/Button";
 import Input from "@/components/ui/Input";
 import Logo from "@/components/ui/Logo";
-import { signIn } from "next-auth/react";
+import { signIn, useSession } from "next-auth/react";
 import { FcGoogle } from "react-icons/fc";
 
 const schema = z.object({
@@ -22,6 +22,7 @@ type FormData = z.infer<typeof schema>;
 export default function StartPage() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
+  const { data: session } = useSession();
 
   const {
     register,
@@ -38,6 +39,12 @@ export default function StartPage() {
       router.replace("/auth/start");
     }
   }, []);
+
+  useEffect(() => {
+    if (session?.user && !session.user.username) {
+      router.replace("/auth/complete-profile");
+    }
+  }, [session, router]);
 
   const onSubmit = async (data: FormData) => {
     setLoading(true);

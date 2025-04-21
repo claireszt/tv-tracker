@@ -56,23 +56,32 @@ export const authOptions: NextAuthOptions = {
     maxAge: 30 * 24 * 60 * 60, // 30 days
   },
   callbacks: {
-    async jwt({ token }) {
-      if (token.email) {
-        const userInDb = await prisma.user.findUnique({
-          where: { email: token.email },
+    async jwt({ token, user }) {
+      if (user) {
+        token.id = user.id;
+      }
+
+      if (typeof token.id === "string") {
+        const dbUser = await prisma.user.findUnique({
+          where: { id: token.id },
         });
 
-        if (userInDb) {
-          token.username = userInDb.username;
+        if (dbUser) {
+          token.username = dbUser.username ?? null;
         }
       }
+
+      if (!token.id) {
+        console.warn("No token.id found – user may not be fully authenticated");
+      }
+
       return token;
     },
     async session({ session, token }) {
       session.user = {
         id: token.id as string,
         email: token.email as string,
-        username: token.username as string,
+        username: (token.username as string) || "",
       };
 
       if (!token.username) {
