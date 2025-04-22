@@ -1,22 +1,63 @@
-import Button from "@/components/ui/Button";
 import { TVShow } from "@/models/tvShow";
+import { formatRelativeDate, hasEpisodeAired } from "@/utils/date";
 import Image from "next/image";
 import Link from "next/link";
+import { useCallback } from "react";
+import { FaCheck } from "react-icons/fa";
 import ProgressBar from "./ProgressBar";
 
-// Define the ShowCardProps interface
+interface EpisodeTogglePayload {
+  id: string;
+  tvdbId: number;
+  title: string;
+  season: number;
+  episodeNumber: number;
+}
 interface ShowCardProps {
   show: TVShow;
   progress: number;
+  nextEpisode?: {
+    id: string;
+    title: string;
+    season: number;
+    episodeNumber: number;
+    airDate: string;
+  };
+  // eslint-disable-next-line no-unused-vars
+  toggleNextEpisodeWatched?: (episode: EpisodeTogglePayload) => void;
 }
 
-const ShowCard: React.FC<ShowCardProps> = ({ show, progress }) => {
+const ShowCard: React.FC<ShowCardProps> = ({
+  show,
+  progress,
+  nextEpisode,
+  toggleNextEpisodeWatched,
+}) => {
+  const aired = nextEpisode ? hasEpisodeAired(nextEpisode.airDate) : false;
+  const totalEpisodes = show.totalEpisodes ?? 0;
+  const remainingAfterNext = totalEpisodes - Math.round((progress / 100) * totalEpisodes);
+
+  const handleToggle = useCallback(
+    (e: React.MouseEvent) => {
+      e.stopPropagation();
+      if (!nextEpisode) return;
+      toggleNextEpisodeWatched?.({
+        id: nextEpisode.id,
+        tvdbId: show.tvdbId,
+        title: nextEpisode.title,
+        season: nextEpisode.season,
+        episodeNumber: nextEpisode.episodeNumber,
+      });
+    },
+    [nextEpisode, show.tvdbId, toggleNextEpisodeWatched]
+  );
+
   return (
-    <Link href={`/show/${show.tvdbId}`} passHref>
-      <div className="w-full p-6 bg-light-surface dark:bg-dark-surface rounded-lg shadow-md flex flex-col items-center cursor-pointer transition-transform transform mb-4">
-        <div className="flex flex-row items-center w-full">
-          {/* Show Image */}
-          <div className="relative w-32 h-48 bg-light-border dark:bg-dark-border rounded-lg overflow-hidden shadow-md">
+    <div className="w-full bg-light-surface dark:bg-dark-surface mb-4 rounded-xl shadow-sm p-4 sm:p-6 hover:shadow-md transition">
+      <div className="flex gap-4 items-start">
+        {/* Poster */}
+        <Link href={`/show/${show.tvdbId}`} passHref>
+          <div className="relative w-24 h-36 sm:w-28 sm:h-40 rounded-lg overflow-hidden shrink-0 cursor-pointer">
             {show.image ? (
               <Image
                 src={show.image}
@@ -27,46 +68,64 @@ const ShowCard: React.FC<ShowCardProps> = ({ show, progress }) => {
                 priority
               />
             ) : (
-              <div className="w-full h-full bg-gray-300 dark:bg-gray-600 flex items-center justify-center">
-                <span className="text-sm text-light-text dark:text-dark-text opacity-70">
-                  No Image
-                </span>
+              <div className="w-full h-full bg-gray-300 dark:bg-gray-600 flex items-center justify-center text-sm text-light-text dark:text-dark-text opacity-70">
+                No Image
               </div>
             )}
           </div>
+        </Link>
 
-          {/* Show Details */}
-          <div className="flex flex-col items-start md:ml-4 flex-grow p-3">
-            {/* Show Title */}
-            <h2 className="text-2xl font-semibold text-light-text dark:text-dark-text mt-3 text-center md:text-left">
-              {show.title}
-            </h2>
+        {/* Details */}
+        <div className="flex flex-col justify-start w-full gap-2 pt-0.5">
+          {/* Title */}
+          <h2 className="text-lg sm:text-xl font-semibold text-light-text dark:text-dark-text leading-snug">
+            {show.title}
+          </h2>
 
-            {/* Watched Progress Bar and Percentage Pill in One Line */}
-            <div className="flex items-center mt-2 w-full gap-2">
-              <div className="bg-light-secondary dark:bg-dark-secondary text-white text-sm font-semibold rounded-full px-3 py-1">
-                {progress}%
-              </div>
-              <div className="flex-grow">
-                <ProgressBar progress={progress} />
-              </div>
+          {/* Progress */}
+          <div className="flex items-center gap-3">
+            <span className="bg-pink-400 text-white text-sm font-bold rounded-full px-3 py-1">
+              {progress}%
+            </span>
+            <div className="flex-grow">
+              <ProgressBar progress={progress} />
             </div>
-
-            {/* Watched Percentage */}
-            <p className="text-sm text-light-text dark:text-dark-text opacity-70 mt-1 text-center md:text-left">
-              {progress === 100
-                ? "Completed"
-                : `${(show.totalEpisodes ?? 0) - progress} episode${(show.totalEpisodes ?? 0) <= 1 ? "" : "s"} to watch`}
-            </p>
           </div>
 
-          {/* View Button (only on desktop) */}
-          <div className="hidden md:block md:ml-4">
-            <Button text="View More" aria-label={`View more about ${show.title}`} />
-          </div>
+          {/* Next Episode */}
+          {nextEpisode && (
+            <div className="flex flex-col gap-1 text-sm text-light-text dark:text-dark-text mt-2">
+              <p className="font-semibold">Next:</p>
+              <p>
+                S{nextEpisode.season.toString().padStart(2, "0")} E
+                {nextEpisode.episodeNumber.toString().padStart(2, "0")} — {nextEpisode.title}
+              </p>
+
+              {aired && (
+                <div className="flex items-center gap-2 mt-1">
+                  <span className="text-xs bg-purple-100 text-purple-600 font-semibold px-2 py-0.5 rounded-full">
+                    +{remainingAfterNext - 1}
+                  </span>
+                  <button
+                    onClick={handleToggle}
+                    className="w-7 h-7 rounded-full flex items-center justify-center bg-gray-400/80 hover:bg-gray-400 transition"
+                    aria-label="Toggle watched"
+                  >
+                    <FaCheck className="w-3 h-3 text-white" />
+                  </button>
+                </div>
+              )}
+
+              {!aired && (
+                <span className="text-xs italic text-gray-500 mt-1">
+                  ⏳ {formatRelativeDate(nextEpisode.airDate)}
+                </span>
+              )}
+            </div>
+          )}
         </div>
       </div>
-    </Link>
+    </div>
   );
 };
 
