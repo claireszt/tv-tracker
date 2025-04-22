@@ -32,21 +32,18 @@ export function hasEpisodeAired(airDate: string | null): boolean {
   return episodeDate <= now;
 }
 
-export function formatRelativeDate(dateString: string | null): string | null {
-  if (!dateString) return null;
-
-  const date = new Date(dateString);
-  if (isNaN(date.getTime())) return null;
+export function formatRelativeDate(dateString: string): string {
+  if (!dateString) return "Unknown date";
 
   const now = new Date();
-  const diffTime = date.getTime() - now.getTime();
-  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+  const target = new Date(dateString);
+  const diffMs = target.getTime() - now.getTime();
+  const diffDays = Math.round(diffMs / (1000 * 60 * 60 * 24));
 
-  if (diffDays <= 30) {
-    if (diffDays === 0) return "Today";
-    if (diffDays === 1) return "Tomorrow";
-    return `in ${diffDays} days`;
-  }
+  if (diffDays === 0) return "today";
+  if (diffDays === 1) return "tomorrow";
+  if (diffDays === -1) return "yesterday";
 
-  return formatFullDate(dateString);
+  if (diffDays > 0) return `in ${diffDays} day${diffDays > 1 ? "s" : ""}`;
+  return `${Math.abs(diffDays)} day${Math.abs(diffDays) > 1 ? "s" : ""} ago`;
 }

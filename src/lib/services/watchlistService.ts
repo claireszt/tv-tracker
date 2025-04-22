@@ -1,10 +1,10 @@
 import { authOptions } from "@/lib/auth";
 import { getServerSession } from "next-auth";
 import prisma from "../prisma";
+import { syncEpisodesForShow } from "./episodeService";
+import { getShowDetails } from "./tvdbService"; // ✅ import your helper
 
-export async function addShowToWatchlist(
-  req: Request
-): Promise<{ error?: string; message?: string; status?: number }> {
+export async function addShowToWatchlist(req: Request) {
   try {
     const session = await getServerSession(authOptions);
     if (!session?.user || !session.user.id) {
@@ -13,41 +13,47 @@ export async function addShowToWatchlist(
 
     const userId = session.user.id;
     const body = await req.json();
+    const { tvdbId } = body;
 
-    if (!body.tvdbId || !body.title || typeof body.totalEpisodes !== "number") {
-      return { error: "Invalid data: Missing required fields", status: 400 };
+    if (!tvdbId) {
+      return { error: "Missing TVDB ID", status: 400 };
     }
 
-    await prisma.$transaction(async (tx) => {
-      const show = await tx.show.upsert({
-        where: { tvdbId: body.tvdbId },
-        update: {},
-        create: {
-          tvdbId: body.tvdbId,
-          title: body.title,
-          image: body.imageUrl,
-          totalEpisodes: body.totalEpisodes,
-        },
-      });
+    const showDetail = await getShowDetails(tvdbId);
+    if (!showDetail) {
+      return { error: "Could not fetch show details", status: 500 };
+    }
 
-      await tx.userWatchlist.upsert({
-        where: {
-          userId_showId: {
-            userId: userId,
-            showId: show.id,
-          },
-        },
-        update: {},
-        create: {
-          userId: userId,
+    const show = await prisma.show.upsert({
+      where: { tvdbId },
+      update: {},
+      create: {
+        tvdbId,
+        title: showDetail.title,
+        image: showDetail.image,
+        totalEpisodes: showDetail.seasons.reduce((sum, season) => sum + season.episodes.length, 0),
+      },
+    });
+
+    await syncEpisodesForShow(show.id, tvdbId);
+
+    await prisma.userWatchlist.upsert({
+      where: {
+        userId_showId: {
+          userId,
           showId: show.id,
         },
-      });
+      },
+      update: {},
+      create: {
+        userId,
+        showId: show.id,
+      },
     });
 
     return { message: "Show added successfully to Watchlist!" };
   } catch (error) {
-    console.error("❌ Prisma Transaction Error:", error);
+    console.error("❌ Error in addShowToWatchlist:", error);
     return { error: "Internal server error", status: 500 };
   }
 }
@@ -73,15 +79,22 @@ export async function getWatchlist(): Promise<{
             id: true,
             tvdbId: true,
             title: true,
-            image: true, // ✅ Include image
-            totalEpisodes: true, // ✅ Include total episode count
-            episodes: { select: { id: true } },
+            image: true,
+            totalEpisodes: true,
+            episodes: {
+              select: {
+                id: true,
+                title: true,
+                episodeNumber: true,
+                season: true,
+                airDate: true,
+              },
+            },
           },
         },
       },
     });
 
-    // ✅ Get watched episodes for this user
     const watchedEpisodes = await prisma.watchedEpisode.findMany({
       where: { userId: userId },
       select: { episodeId: true },
@@ -89,20 +102,42 @@ export async function getWatchlist(): Promise<{
 
     const watchedEpisodeIds = new Set(watchedEpisodes.map((ep) => ep.episodeId));
 
-    // ✅ Calculate percentage watched per show
     const watchlistWithProgress = watchlist.map((entry) => {
-      const totalEpisodes = entry.show.totalEpisodes ?? entry.show.episodes.length; // ✅ Ensure we have an episode count
-      const watchedCount = entry.show.episodes.filter((ep) => watchedEpisodeIds.has(ep.id)).length;
+      const now = new Date();
+
+      const airedEpisodes = entry.show.episodes.filter(
+        (ep) => ep.airDate && new Date(ep.airDate) <= now
+      );
+
+      const airedCount = airedEpisodes.length;
+
+      const watchedAiredCount = airedEpisodes.filter((ep) => watchedEpisodeIds.has(ep.id)).length;
+
       const progress =
-        totalEpisodes > 0 ? Math.min(Math.round((watchedCount / totalEpisodes) * 100), 100) : 0;
+        airedCount > 0 ? Math.min(Math.round((watchedAiredCount / airedCount) * 100), 100) : 0;
+
+      const sortedEpisodes = [...entry.show.episodes].sort(
+        (a, b) => new Date(a.airDate ?? 0).getTime() - new Date(b.airDate ?? 0).getTime()
+      );
+
+      const nextEpisode = sortedEpisodes.find((ep) => !watchedEpisodeIds.has(ep.id));
 
       return {
         ...entry,
         progress,
+        nextEpisode: nextEpisode
+          ? {
+              id: nextEpisode.id,
+              title: nextEpisode.title,
+              season: nextEpisode.season,
+              episodeNumber: nextEpisode.episodeNumber,
+              airDate: nextEpisode.airDate,
+            }
+          : null,
         show: {
           ...entry.show,
-          totalEpisodes, // ✅ Ensure total episodes are included
-          imageUrl: entry.show.image, // ✅ Ensure image is included
+          totalEpisodes: airedCount,
+          imageUrl: entry.show.image,
         },
       };
     });

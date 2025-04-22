@@ -346,7 +346,7 @@ export default function ShowDetailPage() {
             .map((season) => (
               <Accordion
                 key={season.seasonNumber}
-                title={season.seasonNumber === 0 ? "Specials" : `Season ${season.seasonNumber}`}
+                title={`Season ${season.seasonNumber}`}
                 isOpen={activeSeason === season.seasonNumber}
                 onClick={() =>
                   setActiveSeason(activeSeason === season.seasonNumber ? null : season.seasonNumber)

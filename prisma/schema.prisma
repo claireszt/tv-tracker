@@ -79,6 +79,8 @@ model Episode {
   episodeNumber Int
   season        Int
   show          Show     @relation(fields: [showId], references: [id])
+  airDate       DateTime?
+  lastUpdated   DateTime?
   watchedBy     WatchedEpisode[]
 
   @@index([showId])
