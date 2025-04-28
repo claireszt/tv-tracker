@@ -9,3 +9,6 @@ build/
 .eslintcache
 *.tsbuildinfo
 .cursorrules
+
+# Jest coverage output
+coverage/
