@@ -31,7 +31,7 @@ export const authOptions: NextAuthOptions = {
         }
 
         if (!user.password) {
-          throw new Error("no-password"); // 🔥 Custom error the frontend can check
+          throw new Error("No password");
         }
 
         const isValid = await bcrypt.compare(credentials.password, user.password);

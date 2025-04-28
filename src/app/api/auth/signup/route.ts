@@ -1,3 +1,4 @@
+import { handleApiError } from "@/lib/middleware/errorHandler";
 import { createUser, findUserByEmail } from "@/lib/services/authService";
 import { saveVerificationToken } from "@/lib/services/tokenService";
 import sendEmail from "@/lib/utils/sendEmail";
@@ -9,10 +10,7 @@ export async function POST(req: Request) {
     const { username, email, password, confirmPassword } = await req.json();
 
     if (!username || !email || !password || !confirmPassword) {
-      return NextResponse.json(
-        { error: "All fields (username, email, password, confirmPassword) are required" },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: "All fields are required" }, { status: 400 });
     }
 
     if (password !== confirmPassword) {
@@ -41,7 +39,6 @@ export async function POST(req: Request) {
 
     return NextResponse.json({ message: "Verification email sent" }, { status: 201 });
   } catch (error: any) {
-    console.error("Error during sign-up: ", error);
-    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
+    return handleApiError(error);
   }
 }

@@ -1,3 +1,4 @@
+import { handleApiError } from "@/lib/middleware/errorHandler";
 import { getShowDetails } from "@/lib/services/tvdbService";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -18,9 +19,6 @@ export async function GET(
 
     return NextResponse.json(showDetail);
   } catch (error: any) {
-    return NextResponse.json(
-      { message: "Internal Server Error", error: error.message },
-      { status: 500 }
-    );
+    return handleApiError(error);
   }
 }

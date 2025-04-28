@@ -1,3 +1,4 @@
+import { handleApiError } from "@/lib/middleware/errorHandler";
 import { getTVDBToken } from "@/lib/services/tvdbService";
 import { TVShow } from "@/models/tvShow";
 import { NextRequest, NextResponse } from "next/server";
@@ -40,11 +41,6 @@ export async function GET(req: NextRequest) {
 
     return NextResponse.json({ data: shows });
   } catch (error: any) {
-    console.error("Error fetching from TVDB API:", error);
-
-    return NextResponse.json(
-      { message: "Internal Server Error", error: error.message },
-      { status: 500 }
-    );
+    return handleApiError(error);
   }
 }
